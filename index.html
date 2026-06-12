@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="FORGED">
 <meta name="theme-color" content="#0a0a0a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<!-- Build: 2026-06-06-2258 -->
 <title>FORGED</title>
 <style>
 :root{--fire:#FF6B1A;--fire-l:rgba(255,107,26,0.12);
@@ -30,8 +34,8 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
 body{color:var(--text);display:flex;flex-direction:column;max-width:600px;margin:0 auto;width:100%}
 .screen{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(84px + var(--safe-bottom));display:none;-webkit-overflow-scrolling:touch}
 .screen.active{display:block}
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--dark2);backdrop-filter:blur(24px);border-top:0.5px solid var(--border);padding:6px 0 calc(6px + var(--safe-bottom));display:grid;grid-template-columns:repeat(5,1fr);z-index:100}
-.nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 0;border:none;background:none;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--dark2);backdrop-filter:blur(24px);border-top:0.5px solid var(--border);padding:6px 0 calc(6px + var(--safe-bottom));display:flex;justify-content:space-around;align-items:stretch;z-index:100}
+.nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 0;border:none;background:none;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;flex:1;min-width:0}
 .nav-btn.active{color:var(--green)}
 .nav-btn svg{width:21px;height:21px;stroke-width:1.8}
 .hero{background:var(--grad);padding:52px var(--sp) 22px;position:relative;overflow:hidden;border-bottom:1px solid var(--border)}
@@ -72,11 +76,7 @@ body{color:var(--text);display:flex;flex-direction:column;max-width:600px;margin
 .prog-wrap{height:3px;background:var(--dark3);margin:11px var(--sp) 3px;border-radius:2px}
 .prog-bar{height:3px;border-radius:2px;background:linear-gradient(90deg,var(--green),var(--fire));transition:width .5s}
 .prog-label{font-size:11px;color:var(--muted);padding:0 var(--sp) 9px;display:flex;justify-content:space-between;font-weight:700}
-.day-tabs{display:flex;gap:5px;padding:var(--sp-sm) var(--sp) 0;overflow-x:auto;scrollbar-width:none}
-.day-tabs::-webkit-scrollbar{display:none}
-.day-tab{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--dark3);font-size:11px;font-weight:800;cursor:pointer;color:var(--muted);letter-spacing:.05em}
-.day-tab.active{background:var(--green);color:#000;border-color:var(--green)}
-.day-tab.today-tab{border-color:var(--green);color:var(--green);background:rgba(0,200,122,0.08)}
+
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px)}
 .modal-overlay.show{display:flex}
 .modal{background:var(--dark2);border-radius:22px 22px 0 0;width:100%;max-width:600px;padding:18px var(--sp) calc(22px + var(--safe-bottom));max-height:90vh;overflow-y:auto;border-top:1px solid var(--border)}
@@ -571,8 +571,6 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 [data-theme="light"] .seg-ctrl{background:#f0f0f2}
 [data-theme="light"] .seg-btn{color:#888}
 [data-theme="light"] .feel-btn{background:#f0f0f2;color:#888}
-[data-theme="light"] .day-tab{background:#e8e8ec;color:#888}
-[data-theme="light"] .day-tab.today-tab{color:var(--green-d);border-color:var(--green-d)}
 [data-theme="light"] .filter-pill{background:#e8e8ec;color:#888}
 [data-theme="light"] .add-set-btn{background:#f0f0f2;border-color:rgba(0,154,92,0.3)}
 [data-theme="light"] .stat-box{background:#f0f0f2}
@@ -620,6 +618,23 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 .pack-plan-chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--dark3);color:var(--muted);border:1px solid var(--border)}
 .pack-apply-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--green),var(--green-d));color:#000;border:none;font-size:13px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.06em}
 .pack-apply-btn:active{opacity:.8}
+
+/* SET-BY-SET TIMER MODE */
+.rest-timer-set-info{font-size:10px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-top:2px}
+.rest-timer-mode-toggle{display:flex;gap:5px;margin-left:auto}
+.rest-mode-btn{padding:4px 9px;border:1px solid var(--border);border-radius:20px;background:var(--dark3);font-size:10px;font-weight:800;cursor:pointer;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.rest-mode-btn.active{background:var(--green);color:#000;border-color:var(--green)}
+
+/* UPCOMING WORKOUTS */
+.upcoming-card{background:var(--card);border-radius:var(--r);margin:var(--sp-sm) var(--sp) 0;overflow:hidden;border:1px solid var(--border)}
+.upcoming-row{padding:10px var(--sp);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer}
+.upcoming-row:last-child{border-bottom:none}
+.upcoming-row:active{background:var(--dark3)}
+.upcoming-day-label{font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;width:52px;flex-shrink:0;white-space:nowrap}
+.upcoming-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.upcoming-name{font-size:13px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upcoming-exs{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.upcoming-today-label{font-size:9px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:.08em;padding:1px 6px;border-radius:20px;border:1px solid var(--green);margin-left:4px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -633,9 +648,11 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
     <div class="hero-sub" id="today-date"></div>
     <div class="streak-pill"><span id="streak-val">0</span> day streak</div>
   </div>
-  <div class="day-tabs" id="day-tabs"></div>
-  <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
-  <div class="prog-label"><span id="prog-text">0 of 0 done</span><span id="prog-pct">0%</span></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px var(--sp) 2px">
+    <span id="prog-text" style="font-size:12px;color:var(--muted);font-weight:700">0 of 0 done</span>
+    <span id="prog-pct" style="font-size:16px;font-weight:900;color:var(--green)">0%</span>
+  </div>
+  <div class="prog-wrap" style="margin-top:0"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
   <div id="today-content"></div>
 </div>
 
@@ -673,32 +690,24 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
   <!-- LIST VIEW -->
   <div id="hist-list-view" style="display:none">
     <div class="card" style="margin-top:var(--sp-sm)" id="history-content"></div>
-    <div class="card" style="margin-top:var(--sp-sm)"><div class="card-header"><div class="card-title">Personal Records</div></div><div id="records-content"></div></div>
+<!-- Personal Records moved to ME tab -->
     <div style="height:8px"></div>
   </div>
 </div>
 
-<!-- EXERCISES -->
-<div class="screen" id="screen-exercises">
-  <div class="page-bar"><div class="page-bar-title">Exercises</div><div class="page-bar-sub" id="ex-lib-count"></div></div>
-  <div class="search-bar">
-    <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input class="search-input" id="ex-search" placeholder="Search…" oninput="renderExLib()">
-  </div>
-  <div class="filter-row" id="muscle-filters"></div>
-  <div class="card" style="margin-top:9px;margin-bottom:8px" id="ex-lib-content"></div>
-</div>
+<!-- EXERCISES screen merged into TRAIN tab -->
 
 <!-- PLANS -->
 <div class="screen" id="screen-plans">
   <div class="page-bar">
-    <div class="page-bar-title">Plans</div>
-    <div class="page-bar-sub">Build your week</div>
+    <div class="page-bar-title">Train</div>
+    <div class="page-bar-sub">Plans, exercises & stretches</div>
   </div>
-  <!-- Plan screen sub-tabs -->
+  <!-- Train screen sub-tabs -->
   <div class="view-toggle" style="margin-top:10px">
     <button class="view-toggle-btn active" id="pt-week" onclick="setPlanTab('week')">My Week</button>
     <button class="view-toggle-btn" id="pt-packs" onclick="setPlanTab('packs')">Programs</button>
+    <button class="view-toggle-btn" id="pt-ex" onclick="setPlanTab('ex')">Exercises</button>
     <button class="view-toggle-btn" id="pt-stretch" onclick="setPlanTab('stretch')">Stretches</button>
   </div>
   <!-- MY WEEK -->
@@ -715,6 +724,15 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
     <div id="packs-list"></div>
     <div style="height:8px"></div>
   </div>
+  <!-- EXERCISES -->
+  <div id="plan-tab-ex" style="display:none">
+    <div class="search-bar" style="margin-top:10px">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="ex-search" placeholder="Search exercises…" oninput="renderExLib()">
+    </div>
+    <div class="filter-row" id="muscle-filters"></div>
+    <div class="card" style="margin-top:9px;margin-bottom:8px" id="ex-lib-content"></div>
+  </div>
   <!-- STRETCHES -->
   <div id="plan-tab-stretch" style="display:none">
     <div class="sec-title" style="padding-top:13px">Stretch library</div>
@@ -727,11 +745,12 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 <div class="screen" id="screen-standing">
   <div class="standing-hero">
     <div class="s-name" id="standing-name">FORGED</div>
-    <div class="s-title">Your Standing</div>
-    <div class="s-sub">Stats, badges & personal bests</div>
+    <div class="s-title">Me</div>
+    <div class="s-sub">Progress, records & goals</div>
     <button class="settings-gear-btn" onclick="showScreen('settings')" title="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
     </button>
+    <div style="font-size:10px;color:rgba(255,255,255,0.4);font-weight:700;position:absolute;top:58px;right:calc(var(--sp) + 2px);font-size:9px;letter-spacing:.05em;text-transform:uppercase">Settings</div>
   </div>
   <div id="monthly-summary-wrap"></div>
   <div class="stats-grid" id="standing-stats"></div>
@@ -878,14 +897,11 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
   <button class="nav-btn" onclick="showScreen('history',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>LOG
   </button>
-  <button class="nav-btn" onclick="showScreen('exercises',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4v16M18 4v16M2 8h4M18 8h4M2 16h4M18 16h4"/></svg>LIFT
-  </button>
   <button class="nav-btn" onclick="showScreen('plans',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>PLANS
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4v16M18 4v16M2 8h4M18 8h4M2 16h4M18 16h4"/></svg>TRAIN
   </button>
   <button class="nav-btn" onclick="showScreen('standing',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>STANDING
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>ME
   </button>
 </nav>
 <button class="fab" id="fab" onclick="openAddExModal()">+</button>
@@ -997,7 +1013,10 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
     <div class="modal-title" id="export-title">Export</div>
     <div class="modal-sub" id="export-sub"></div>
     <div id="export-preview" style="background:var(--dark3);border-radius:var(--rs);padding:11px;font-size:10px;font-family:monospace;color:var(--muted);max-height:170px;overflow-y:auto;margin-bottom:13px;white-space:pre-wrap;word-break:break-all;border:1px solid var(--border)"></div>
-    <button class="btn-primary" onclick="copyExport()">Copy to clipboard</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn-primary" onclick="copyExport()" style="font-size:13px">Copy</button>
+      <button class="btn-primary" onclick="downloadExport()" style="background:linear-gradient(135deg,var(--blue),#2563eb);font-size:13px">Download</button>
+    </div>
     <div style="margin-top:11px;padding:11px;background:var(--blue-l);border-radius:var(--rs);border:1px solid rgba(59,130,246,0.18)">
       <div style="font-size:10px;font-weight:900;color:var(--blue);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Apple Health</div>
       <div style="font-size:11px;color:var(--muted);line-height:1.6;font-weight:500" id="export-health-tip"></div>
@@ -1029,6 +1048,7 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
   <div class="rest-timer-body">
     <div class="rest-timer-label" id="rest-timer-label">Rest</div>
     <div class="rest-timer-sub" id="rest-timer-sub">Next: tap Log to continue</div>
+    <div class="rest-timer-set-info" id="rest-timer-set-info"></div>
   </div>
   <div class="rest-timer-controls">
     <button class="rest-timer-btn" onclick="addRestTime(30)">+30s</button>
@@ -1217,7 +1237,7 @@ const MUSCLE_LABELS={legs:'Legs',back:'Back & Core',chest:'Chest',shoulders:'Sho
 const COL={green:'var(--green)',fire:'var(--fire)',purple:'var(--purple)',blue:'var(--blue)',gold:'var(--gold)',gray:'var(--muted)'};
 const COL_L={green:'var(--green-l)',fire:'var(--fire-l)',purple:'var(--purple-l)',blue:'var(--blue-l)',gold:'var(--gold-l)',gray:'var(--dark3)'};
 
-let S={checked:{},logs:{},records:{},streak:0,bestStreak:0,name:'',startDate:null,customExercises:{},customPlans:{},weekAssignment:{...DEFAULT_WEEK},notes:[],bwEntries:[],bwUnit:'lbs',adhocExercises:{},exUnits:{},dayNotes:{}};
+let S={checked:{},logs:{},records:{},streak:0,bestStreak:0,name:'',startDate:null,customExercises:{},customPlans:{},weekAssignment:{...DEFAULT_WEEK},weekAssignmentB:{...DEFAULT_WEEK},useAltWeeks:false,notes:[],bwEntries:[],bwUnit:'lbs',adhocExercises:{},exUnits:{},dayNotes:{}};
 let curDK='',curDow=new Date().getDay();
 let logExId='',logFeel='good',logSetCount=3,logWarmupCount=0;
 let editExId=null,editExType='reps';
@@ -1232,7 +1252,7 @@ function load(){
   if(!S.bwEntries)S.bwEntries=[];
   if(!S.bwUnit)S.bwUnit='lbs';
   if(!S.adhocExercises)S.adhocExercises={};
-  if(!S.exUnits)S.exUnits={};if(!S.dayNotes)S.dayNotes={};
+  if(!S.exUnits)S.exUnits={};if(!S.dayNotes)S.dayNotes={};if(!S.weekAssignmentB)S.weekAssignmentB={...DEFAULT_WEEK};if(typeof S.useAltWeeks==='undefined')S.useAltWeeks=false;
 }
 
 function save(){try{localStorage.setItem('forged3',JSON.stringify(S));}catch(e){}}
@@ -1257,10 +1277,14 @@ function showScreen(name,btn){
     document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
     if(btn)btn.classList.add('active');
   }
-  document.getElementById('screen-'+name).classList.add('active');
-  document.getElementById('fab').classList.toggle('show',name==='exercises');
+  // exercises now lives inside plans/train screen
+  const screenId = name === 'exercises' ? 'plans' : name;
+  const screenEl = document.getElementById('screen-'+screenId);
+  if(screenEl) screenEl.classList.add('active');
+  // Show FAB only when exercises sub-tab is active in train
+  document.getElementById('fab').classList.toggle('show', name==='exercises');
   if(name==='history')renderHistory();
-  if(name==='exercises')renderExLib();
+  if(name==='exercises'){renderPlans();setPlanTab('ex');}
   if(name==='plans')renderPlans();
   if(name==='standing')renderStanding();
   if(name==='settings')renderSettings();
@@ -1270,24 +1294,35 @@ function renderToday(dow){
   const now=new Date(),todayDow=now.getDay();
   const d=new Date(now);d.setDate(d.getDate()+(dow-todayDow));
   curDK=dk(d);
-  const pid=S.weekAssignment[dow],plan=pid&&pid!=='rest'&&pid!=='active'?allPlans()[pid]:null;
+  const pid=getPlanForDay(dow),plan=pid&&pid!=='rest'&&pid!=='active'?allPlans()[pid]:null;
   const rawExItems=plan?plan.exercises:[],ch=S.checked[curDK]||{};
   const exIds=flattenExIds(rawExItems);
   const done=exIds.filter(id=>ch[id]).length,total=exIds.length,pct=total?Math.round(done/total*100):0;
   const h=now.getHours(),isToday=dow===todayDow;
   document.getElementById('today-title').textContent=isToday?(S.name?'Let\'s go, '+S.name+'.':(h<12?'Morning. Let\'s work.':h<17?'Afternoon. Let\'s grind.':'Evening. Get after it.')):DAYS_L[dow];
-  document.getElementById('today-date').textContent=d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'});
+  const _wkLabel=getWeekLabel();
+  document.getElementById('today-date').textContent=d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'})+(_wkLabel?' — '+_wkLabel:'');
   document.getElementById('streak-val').textContent=S.streak||0;
   document.getElementById('prog-bar').style.width=pct+'%';
   document.getElementById('prog-text').textContent=total?done+' of '+total+' done':(pid==='rest'?'Rest day':'Active day');
   document.getElementById('prog-pct').textContent=total?pct+'%':'';
   const content=document.getElementById('today-content');content.innerHTML='';
-  renderDayNote(content);
   const AX=allEx();
   if(!plan){
-    content.innerHTML='<div class="card" style="margin-top:var(--sp-sm)"><div style="padding:var(--sp)"><div class="empty">'+(pid==='active'?'<div class="empty-icon"></div><div class="empty-title">Active day</div><div class="empty-sub">Go do something you love. This is the whole point.</div>':'<div class="empty-icon"></div><div class="empty-title">Rest day</div><div class="empty-sub">Muscles grow during recovery. Rest hard.</div>')+'</div></div></div>';
+    // Build tomorrow preview
+    const _tmrDow=(curDow+1)%7;
+    const _tmrPid=getPlanForDay(_tmrDow);
+    const _tmrPlan=_tmrPid&&_tmrPid!=='rest'&&_tmrPid!=='active'?allPlans()[_tmrPid]:null;
+    let _tmrHtml='';
+    if(_tmrPlan){
+      const _tmrExNames=flattenExIds(_tmrPlan.exercises).slice(0,4).map(id=>AX[id]?AX[id].name:id);
+      _tmrHtml=`<div style="margin-top:10px;padding:10px var(--sp);border-top:1px solid var(--border)"><div style="font-size:10px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">Tomorrow — ${_tmrPlan.name}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${_tmrExNames.map(n=>`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--dark3);color:var(--muted);border:1px solid var(--border);font-weight:600">${n}</span>`).join('')}${flattenExIds(_tmrPlan.exercises).length>4?`<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--dark3);color:var(--muted);border:1px solid var(--border);font-weight:600">+${flattenExIds(_tmrPlan.exercises).length-4} more</span>`:''}${_tmrPlan.exercises.length===0?'<span style="font-size:12px;color:var(--muted)">No exercises set</span>':''}</div></div>`;
+    }
+    content.innerHTML='<div class="card" style="margin-top:var(--sp-sm)"><div style="padding:var(--sp)"><div class="empty">'+(pid==='active'?'<div class="empty-icon"></div><div class="empty-title">Active day</div><div class="empty-sub">Go do something you love. This is the whole point.</div>':'<div class="empty-icon"></div><div class="empty-title">Rest day</div><div class="empty-sub">Muscles grow during recovery. Rest hard.</div>')+'</div></div>'+_tmrHtml+'</div>';
     renderAdhocCard(content);
     renderRestStretches(content);
+    renderDayNote(content);
+    if(curDK===dk(new Date()))renderUpcoming(content);
     const adhocIds2=(S.adhocExercises[curDK]||[]);
     const adhocDone2=adhocIds2.filter(id=>ch[id]).length;
     if(adhocIds2.length){
@@ -1329,8 +1364,11 @@ function renderToday(dow){
     document.getElementById('prog-text').textContent=allDone+' of '+allTotal+' done';
     document.getElementById('prog-pct').textContent=Math.round(allDone/allTotal*100)+'%';
   }
+  renderDayNote(content);
   if(allTotal>0&&allDone===allTotal)renderCooldown(content,allTodayIds,AX);
   else if(total>0&&done===total&&!(S.adhocExercises[curDK]||[]).length)renderCooldown(content,exIds,AX);
+  // Only show upcoming on actual today view
+  if(curDK===dk(new Date()))renderUpcoming(content);
 }
 
 function getLastSession(exId,excludeDate){
@@ -1383,7 +1421,7 @@ function renderRestStretches(c){
   let subtitle='';
   // Check if tomorrow has a plan — if so, prime those muscles
   const tomorrowDow=(curDow+1)%7;
-  const tomorrowPid=S.weekAssignment[tomorrowDow];
+  const tomorrowPid=getPlanForDay(tomorrowDow);
   const tomorrowPlan=tomorrowPid&&tomorrowPid!=='rest'&&tomorrowPid!=='active'?allPlans()[tomorrowPid]:null;
   // Check if today's ad-hoc exercises added any muscles
   const adhocIds=S.adhocExercises[curDK]||[];
@@ -1466,17 +1504,7 @@ function updateStreak(){
   S.streak=streak;if(streak>(S.bestStreak||0))S.bestStreak=streak;
 }
 
-function renderDayTabs(){
-  const todayDow=new Date().getDay();
-  const c=document.getElementById('day-tabs');c.innerHTML='';
-  [1,2,3,4,5,6,0].forEach(dow=>{
-    const btn=document.createElement('button');
-    btn.className='day-tab'+(dow===todayDow?' today-tab':'')+(dow===curDow?' active':'');
-    btn.textContent=DAYS_S[dow];
-    btn.onclick=()=>{document.querySelectorAll('.day-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderToday(dow);};
-    c.appendChild(btn);
-  });
-}
+function renderDayTabs(){} // day tabs removed — use LOG calendar to view other days
 function openLogModal(exId){
   logExId=exId;logFeel='good';
   const ex=allEx()[exId];if(!ex)return;
@@ -1602,7 +1630,10 @@ function saveLog(){
   document.getElementById('log-modal').classList.remove('show');
   renderToday(curDow);
   // Start rest timer after logging
-  startRestTimer(ex.type, ex.name);
+  // Pass set count so timer can show set-by-set progress
+  const _setsLogged = sets.filter(s => (s.reps||0) > 0 || (s.secs||0) > 0 || (s.weight||0) > 0).length;
+  const _setsTarget = ex.sets || logSetCount;
+  startRestTimer(ex.type, ex.name, _setsLogged, _setsTarget, logExId);
 }
 function renderStanding(){
   const AX=allEx();
@@ -1708,7 +1739,7 @@ function renderExLib(){
   let ids=Object.keys(AX);
   if(exFilter!=='all')ids=ids.filter(id=>AX[id].muscle===exFilter);
   if(exSearch)ids=ids.filter(id=>AX[id].name.toLowerCase().includes(exSearch.toLowerCase()));
-  document.getElementById('ex-lib-count').textContent=ids.length+' exercises in library';
+  const _elc=document.getElementById('ex-lib-count');if(_elc)_elc.textContent=ids.length+' exercises in library';
   const c=document.getElementById('ex-lib-content');c.innerHTML='';
   if(!ids.length){c.innerHTML='<div class="empty"><div class="empty-icon"></div><div class="empty-title">No exercises found</div></div>';return;}
   ids.forEach(id=>{
@@ -1786,12 +1817,31 @@ function renderPlans(){
   setPlanTab('week');
   const AP=allPlans();
   const wa=document.getElementById('week-assignment');wa.innerHTML='';
+
+  // Alternating weeks toggle
+  const toggleRow=document.createElement('div');
+  toggleRow.style.cssText='padding:var(--sp-sm) var(--sp);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px';
+  const weekLabel=S.useAltWeeks?(curWeekIsB()?'<span style="color:var(--blue);font-weight:900">Week B</span> is active this week':'<span style="color:var(--green);font-weight:900">Week A</span> is active this week'):'Single weekly schedule';
+  toggleRow.innerHTML=`<div><div style="font-size:12px;font-weight:800;color:var(--text)">Alternating weeks</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${weekLabel}</div></div><button onclick="toggleAltWeeks()" style="padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:${S.useAltWeeks?'var(--green)':'var(--dark3)'};color:${S.useAltWeeks?'#000':'var(--muted)'};font-size:11px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">${S.useAltWeeks?'On':'Off'}</button>`;
+  wa.appendChild(toggleRow);
+
+  // Week A/B sub-tabs if alternating is on
+  if(S.useAltWeeks){
+    const tabRow=document.createElement('div');
+    tabRow.style.cssText='display:flex;border-bottom:1px solid var(--border)';
+    tabRow.innerHTML=`<button id="wa-tab-a" onclick="setWeekTab('a')" style="flex:1;padding:8px;border:none;background:${!window._weekTab||window._weekTab==='a'?'var(--green)':'var(--dark3)'};color:${!window._weekTab||window._weekTab==='a'?'#000':'var(--muted)'};font-size:11px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Week A</button><button id="wa-tab-b" onclick="setWeekTab('b')" style="flex:1;padding:8px;border:none;background:${window._weekTab==='b'?'var(--blue)':'var(--dark3)'};color:${window._weekTab==='b'?'#fff':'var(--muted)'};font-size:11px;font-weight:900;cursor:pointer;text-transform:uppercase;letter-spacing:.04em">Week B</button>`;
+    wa.appendChild(tabRow);
+  }
+
+  const activeWeekAssign = S.useAltWeeks && window._weekTab==='b' ? S.weekAssignmentB : S.weekAssignment;
+  const activeWeekKey = S.useAltWeeks && window._weekTab==='b' ? 'B' : 'A';
+
   [1,2,3,4,5,6,0].forEach(dow=>{
-    const pid=S.weekAssignment[dow],plan=pid&&pid!=='rest'&&pid!=='active'?AP[pid]:null;
+    const pid=activeWeekAssign[dow],plan=pid&&pid!=='rest'&&pid!=='active'?AP[pid]:null;
     const color=plan?COL[plan.color]||'var(--green)':'var(--muted)';
     const row=document.createElement('div');
     row.style.cssText='padding:var(--sp-sm) var(--sp);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px';
-    row.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div><div style="width:36px;font-size:11px;font-weight:800;color:var(--muted)">${DAYS_S[dow]}</div><div style="flex:1;font-size:13px;font-weight:600">${plan?plan.name:pid==='active'?'Active day':'Rest day'}</div><select style="font-size:11px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;background:var(--dark3);color:var(--text);max-width:130px" onchange="assignDay(${dow},this.value)"><option value="rest" ${pid==='rest'?'selected':''}>Rest</option><option value="active" ${pid==='active'?'selected':''}>Active</option>${Object.entries(AP).map(([id,p])=>`<option value="${id}" ${pid===id?'selected':''}>${p.name}</option>`).join('')}</select>`;
+    row.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0"></div><div style="width:36px;font-size:11px;font-weight:800;color:var(--muted)">${DAYS_S[dow]}</div><div style="flex:1;font-size:13px;font-weight:600">${plan?plan.name:pid==='active'?'Active day':'Rest day'}</div><select style="font-size:11px;border:1px solid var(--border);border-radius:6px;padding:3px 6px;background:var(--dark3);color:var(--text);max-width:130px" onchange="assignDay(${dow},this.value,'${activeWeekKey}')"><option value="rest" ${pid==='rest'?'selected':''}>Rest</option><option value="active" ${pid==='active'?'selected':''}>Active</option>${Object.entries(AP).map(([id,p])=>`<option value="${id}" ${pid===id?'selected':''}>${p.name}</option>`).join('')}</select>`;
     wa.appendChild(row);
   });
   const pl=document.getElementById('plans-list');pl.innerHTML='';
@@ -1804,7 +1854,22 @@ function renderPlans(){
   });
 }
 
-function assignDay(dow,pid){S.weekAssignment[dow]=pid;save();renderPlans();renderDayTabs();}
+function assignDay(dow,pid,week){
+  if(week==='B') S.weekAssignmentB[dow]=pid;
+  else S.weekAssignment[dow]=pid;
+  save();renderPlans();renderDayTabs();
+}
+
+function toggleAltWeeks(){
+  S.useAltWeeks=!S.useAltWeeks;
+  if(!S.weekAssignmentB)S.weekAssignmentB={...DEFAULT_WEEK};
+  save();renderPlans();renderDayTabs();renderToday(curDow);
+}
+
+function setWeekTab(tab){
+  window._weekTab=tab;
+  renderPlans();
+}
 
 function openPlanModal(id){
   editPlanId=id;const plan=allPlans()[id];if(!plan)return;
@@ -1990,6 +2055,29 @@ function copyExport(){
   else fallbackCopy();
 }
 function fallbackCopy(){const ta=document.createElement('textarea');ta.value=exportText;ta.style.cssText='position:fixed;opacity:0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Copied!');}catch(e){toast('Select text manually');}document.body.removeChild(ta);}
+
+function downloadExport(){
+  if(!exportText){toast('Nothing to download.');return;}
+  const exportType=document.getElementById('export-title').textContent||'export';
+  const isJSON=exportType.toLowerCase().includes('json');
+  const isBW=exportType.toLowerCase().includes('body weight');
+  const date=new Date().toISOString().split('T')[0];
+  let filename='forged-workout-'+date+'.csv';
+  let mime='text/csv';
+  if(isJSON){filename='forged-data-'+date+'.json';mime='application/json';}
+  else if(isBW){filename='forged-bodyweight-'+date+'.csv';}
+  const blob=new Blob([exportText],{type:mime+';charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=filename;
+  a.style.display='none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast('Downloaded: '+filename);
+}
 function showHealthInfo(){document.getElementById('health-modal').classList.add('show');}
 
 function closeOverlay(e,id){if(e.target===document.getElementById(id))document.getElementById(id).classList.remove('show');}
@@ -1998,36 +2086,85 @@ function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t
 let restTimerInterval = null;
 let restRemaining = 0;
 let restTotal = 0;
+// Set-by-set mode state
+let restSetMode = true;      // true = set-by-set, false = single timer
+let restCurrentSet = 0;      // which set just finished (1-indexed)
+let restTotalSets = 0;       // total sets for this exercise
+let restExId = null;         // exercise being timed
 
 const REST_DURATIONS = {
-  weight: 90,   // 90s for strength/weight exercises
-  reps: 60,     // 60s for bodyweight reps
-  time: 30,     // 30s after timed exercises
+  weight: 90,
+  reps: 60,
+  time: 30,
 };
 
-function startRestTimer(exType, exName) {
+function startRestTimer(exType, exName, setsDone, setsTotal, exId) {
   if (restTimerInterval) clearInterval(restTimerInterval);
   restTotal = REST_DURATIONS[exType] || 60;
   restRemaining = restTotal;
+  restCurrentSet = setsDone || 0;
+  restTotalSets = setsTotal || 0;
+  restExId = exId || null;
+
   document.getElementById('rest-timer-label').textContent = 'Rest — ' + exName;
-  document.getElementById('rest-timer-sub').textContent = 'Next set when ready';
+
+  // Set info line
+  const setInfo = document.getElementById('rest-timer-set-info');
+  if (restSetMode && restTotalSets > 0 && restCurrentSet < restTotalSets) {
+    setInfo.textContent = 'Set ' + restCurrentSet + ' of ' + restTotalSets + ' done';
+    document.getElementById('rest-timer-sub').textContent = 'Get ready for set ' + (restCurrentSet + 1);
+  } else {
+    setInfo.textContent = '';
+    document.getElementById('rest-timer-sub').textContent = 'Next set when ready';
+  }
+
   document.getElementById('rest-timer-bar').classList.add('show');
   updateRestDisplay();
+
   restTimerInterval = setInterval(() => {
     restRemaining--;
     updateRestDisplay();
     if (restRemaining <= 0) {
       clearInterval(restTimerInterval);
       restTimerInterval = null;
-      document.getElementById('rest-timer-label').textContent = 'Rest complete';
-      document.getElementById('rest-timer-sub').textContent = 'Time to go!';
+      // Play audio alert
+      playRestDoneSound();
+      // Vibrate if supported
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      document.getElementById('rest-timer-label').textContent = 'Go!';
+      if (restSetMode && restTotalSets > 0 && restCurrentSet < restTotalSets) {
+        document.getElementById('rest-timer-sub').textContent = 'Set ' + (restCurrentSet + 1) + ' — start now!';
+        if (setInfo) setInfo.textContent = '';
+      } else {
+        document.getElementById('rest-timer-sub').textContent = 'Time to go!';
+        if (setInfo) setInfo.textContent = '';
+      }
       document.getElementById('rest-ring-fg').classList.add('warn');
-      // Auto-hide after 5s if not dismissed
       setTimeout(() => {
         if (restRemaining <= 0) hideRestTimer();
-      }, 5000);
+      }, 6000);
     }
   }, 1000);
+}
+
+// Audio alert using Web Audio API — no external files needed
+function playRestDoneSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    // Two short beeps
+    [[0, 880], [0.2, 1046]].forEach(([when, freq]) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + when);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + when + 0.15);
+      osc.start(ctx.currentTime + when);
+      osc.stop(ctx.currentTime + when + 0.15);
+    });
+  } catch(e) {}
 }
 
 function updateRestDisplay() {
@@ -2446,7 +2583,7 @@ function renderCalendar() {
     const dow = dateObj.getDay();
     const isFuture = dateStr > todayStr;
     const isToday = dateStr === todayStr;
-    const pid = S.weekAssignment[dow];
+    const pid = getPlanForDay(dow);
     const isRestDay = !pid || pid === 'rest' || pid === 'active';
     const ch = S.checked[dateStr] || {};
     const doneIds = Object.keys(ch).filter(id => ch[id]);
@@ -2482,7 +2619,7 @@ function showCalDetail(dateStr, doneIds, isRestDay, pid) {
 
   let html = `<div class="cal-detail-date">${label}</div>`;
   if (isRestDay) {
-    const plan = S.weekAssignment[d.getDay()];
+    const plan = getPlanForDay(d.getDay());
     html += `<div class="cal-detail-rest">${plan === 'active' ? 'Active day' : 'Rest day'}</div>`;
   } else if (!doneIds.length) {
     html += '<div class="cal-detail-rest">No exercises logged</div>';
@@ -2534,25 +2671,7 @@ function renderHistoryList() {
       hc.appendChild(div);
     });
   }
-  // Records
-  const rc = document.getElementById('records-content');
-  const rids = Object.keys(S.records);
-  if (!rids.length) {
-    rc.innerHTML = '<div class="empty" style="padding:20px"><div class="empty-icon"></div><div class="empty-title">No records yet</div></div>';
-  } else {
-    rc.innerHTML = '';
-    rids.forEach(id => {
-      const ex = AX[id], rec = S.records[id]; if (!ex || !rec) return;
-      const row = document.createElement('div'); row.className = 'rec-row';
-      const d = rec.date ? new Date(rec.date + 'T12:00:00').toLocaleDateString('en-CA', {month:'short', day:'numeric'}) : '';
-      let vals = '';
-      if (ex.type === 'weight') vals = `<span class="rec-val gold">${rec.weight||'—'}lbs × ${rec.reps||'—'} reps</span>`;
-      else if (ex.type === 'time') vals = `<span class="rec-val gold">${rec.best}s hold</span>`;
-      else vals = `<span class="rec-val gold">${rec.totalReps} total reps</span>`;
-      row.innerHTML = `<div class="rec-icon">${ex.muscle==='legs'?'LEG':ex.muscle==='chest'?'CHT':ex.muscle==='shoulders'?'SHD':ex.muscle==='arms'?'ARM':ex.muscle==='cardio'?'CDO':'BCK'}</div><div class="rec-body"><div class="rec-name">${ex.name}</div><div class="rec-vals">${vals}<span class="rec-val">${d}</span></div></div>`;
-      rc.appendChild(row);
-    });
-  }
+  // Personal Records on ME tab
 }
 
 function setBwUnit(unit) {
@@ -2759,7 +2878,7 @@ function renderMonthlySummary() {
   let totalExDone = 0;
   for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
     const dow = d.getDay();
-    const pid = S.weekAssignment[dow];
+    const pid = getPlanForDay(dow);
     if (!pid || pid === 'rest' || pid === 'active') continue;
     const plan = allPlans()[pid];
     if (!plan || !plan.exercises.length) continue;
@@ -2784,7 +2903,7 @@ function renderMonthlySummary() {
   let bestStreak = 0, currentStreak = 0;
   for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
     const dow = d.getDay();
-    const pid = S.weekAssignment[dow];
+    const pid = getPlanForDay(dow);
     if (!pid || pid === 'rest' || pid === 'active') continue;
     const plan = allPlans()[pid];
     if (!plan) continue;
@@ -2897,7 +3016,7 @@ function renderAdhocCard(container) {
   // Header
   const hdr = document.createElement('div');
   hdr.className = 'card-header';
-  hdr.innerHTML = '<div class="card-title">Add exercises</div><div style="font-size:11px;color:var(--muted);font-weight:600">Any exercise, any day</div>';
+  hdr.innerHTML = '<div class="card-title">Add to today</div><div style="font-size:11px;color:var(--muted);font-weight:600">Log anything extra</div>';
   card.appendChild(hdr);
 
   // Existing ad-hoc rows
@@ -2979,10 +3098,9 @@ function renderAdhocCard(container) {
   renderAdhocResults();
 }
 
-function addAdhocEx() {
-  const sel = document.getElementById('adhoc-select');
-  const id = sel ? sel.value : '';
-  if (!id) { toast('Pick an exercise first.'); return; }
+function addAdhocEx(id) {
+  // Called directly from search result rows
+  if (!id) return;
   if (!S.adhocExercises[curDK]) S.adhocExercises[curDK] = [];
   if (S.adhocExercises[curDK].includes(id)) { toast('Already added.'); return; }
   S.adhocExercises[curDK].push(id);
@@ -3049,6 +3167,8 @@ function restoreFromFile(event) {
         customExercises: restored.customExercises || {},
         customPlans: restored.customPlans || {},
         weekAssignment: restored.weekAssignment || S.weekAssignment,
+        weekAssignmentB: restored.weekAssignmentB || {...DEFAULT_WEEK},
+        useAltWeeks: restored.useAltWeeks || false,
         notes: restored.notes || [],
         bwEntries: restored.bwEntries || [],
         bwUnit: restored.bwUnit || 'lbs',
@@ -3517,16 +3637,48 @@ function loadTheme() {
 }
 
 
+
+// ══ ALT WEEK SCHEDULE ══════════════════════════════════════════════════
+function getISOWeek(date) {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function curWeekIsB() {
+  // Odd ISO week numbers = Week A, Even = Week B
+  return getISOWeek(new Date()) % 2 === 0;
+}
+
+function getWeekAssignment() {
+  // Returns the active week assignment object
+  if (S.useAltWeeks && curWeekIsB()) return S.weekAssignmentB;
+  return S.weekAssignment;
+}
+
+function getPlanForDay(dow) {
+  return getWeekAssignment()[dow];
+}
+
+function getWeekLabel() {
+  if (!S.useAltWeeks) return null;
+  return curWeekIsB() ? 'Week B' : 'Week A';
+}
+
 // ══ PLAN TABS ══════════════════════════════════════════════════════════
 let planTab = 'week';
 
 function setPlanTab(tab) {
   planTab = tab;
-  ['week','packs','stretch'].forEach(t => {
-    document.getElementById('plan-tab-' + t).style.display = t === tab ? 'block' : 'none';
-    document.getElementById('pt-' + t).classList.toggle('active', t === tab);
+  ['week','packs','ex','stretch'].forEach(t => {
+    const el = document.getElementById('plan-tab-' + t);
+    if (el) el.style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('pt-' + t);
+    if (btn) btn.classList.toggle('active', t === tab);
   });
   if (tab === 'packs') renderPacksList();
+  if (tab === 'ex') renderExLib();
   if (tab === 'stretch') renderStretchLib();
 }
 
@@ -3615,6 +3767,62 @@ function renderStretchLib() {
     wrap.innerHTML = html;
     el.appendChild(wrap);
   });
+}
+
+
+// ══ UPCOMING WORKOUTS ═════════════════════════════════════════════════
+function renderUpcoming(container) {
+  const AX = allEx();
+  const AP = allPlans();
+  const COL_MAP = {green:'var(--green)',fire:'var(--fire)',blue:'var(--blue)',purple:'var(--purple)',gold:'var(--gold)'};
+  const todayDow = new Date().getDay();
+
+  // Build next 6 days (not including today)
+  const upcoming = [];
+  for (let i = 1; i <= 6; i++) {
+    const dow = (todayDow + i) % 7;
+    const pid = getPlanForDay(dow);
+    const plan = pid && pid !== 'rest' && pid !== 'active' ? AP[pid] : null;
+    upcoming.push({ dow, pid, plan, daysAhead: i });
+  }
+
+  const card = document.createElement('div');
+  card.className = 'upcoming-card';
+  card.innerHTML = '<div class="card-header"><div class="card-title">Coming up</div></div>';
+
+  upcoming.forEach(({ dow, pid, plan, daysAhead }) => {
+    const row = document.createElement('div');
+    row.className = 'upcoming-row';
+
+    const dayLabel = daysAhead === 1 ? 'Tomorrow' : DAYS_S[dow];
+    const color = plan ? (COL_MAP[plan.color] || 'var(--green)') : 'var(--border)';
+
+    let nameStr, exStr;
+    if (plan) {
+      nameStr = plan.name;
+      const exIds = flattenExIds(plan.exercises).slice(0, 3);
+      const exNames = exIds.map(id => AX[id] ? AX[id].name : '').filter(Boolean);
+      exStr = exNames.join(' · ') + (flattenExIds(plan.exercises).length > 3 ? ' +' + (flattenExIds(plan.exercises).length - 3) + ' more' : '');
+    } else if (pid === 'active') {
+      nameStr = 'Active day';
+      exStr = 'Go do something you love';
+    } else {
+      nameStr = 'Rest day';
+      exStr = 'Recovery';
+    }
+
+    row.innerHTML = `
+      <div class="upcoming-day-label">${dayLabel}</div>
+      <div class="upcoming-dot" style="background:${color}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="upcoming-name">${nameStr}</div>
+        ${exStr ? `<div class="upcoming-exs">${exStr}</div>` : ''}
+      </div>`;
+
+    card.appendChild(row);
+  });
+
+  container.appendChild(card);
 }
 
 function initSwipeDismiss(modalId) {
