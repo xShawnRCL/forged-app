@@ -658,6 +658,7 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 .drum-div{position:absolute;top:0;bottom:0;left:36%;width:1px;background:var(--border);pointer-events:none;z-index:3}
 [data-theme="light"] .drum-sel{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.1)}
 [data-theme="light"] .drum-item.drum-on{color:var(--text)}
+.drum-wrap-inline{border-radius:0;border-left:none;border-right:none;border-bottom:none;margin:0;border-top:1px solid var(--border)}
 </style>
 </head>
 <body>
@@ -749,17 +750,22 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
   </div>
   <!-- EXERCISES -->
   <div id="plan-tab-ex" style="display:none">
-    <div class="search-bar" style="margin-top:10px">
-      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="search-input" id="ex-search" placeholder="Search exercises…" oninput="renderExLib()">
+    <div class="drum-wrap" style="margin:10px var(--sp) 0" id="ex-drum-wrap">
+      <div class="drum-sel"></div><div class="drum-div"></div>
+      <div class="drum-col drum-col-m" id="ex-drum-m"></div>
+      <div class="drum-col drum-col-e" id="ex-drum-e"></div>
     </div>
-    <div class="filter-row" id="muscle-filters"></div>
-    <div class="card" style="margin-top:9px;margin-bottom:8px" id="ex-lib-content"></div>
+    <div id="ex-drum-detail" style="display:none;margin:8px var(--sp) 0;border-radius:var(--r);border:1px solid var(--border);background:var(--card);overflow:hidden"></div>
+    <div style="height:8px"></div>
   </div>
   <!-- STRETCHES -->
   <div id="plan-tab-stretch" style="display:none">
-    <div class="sec-title" style="padding-top:13px">Stretch library</div>
-    <div id="stretch-lib-content"></div>
+    <div class="drum-wrap" style="margin:10px var(--sp) 0" id="stretch-drum-wrap">
+      <div class="drum-sel"></div><div class="drum-div"></div>
+      <div class="drum-col drum-col-m" id="stretch-drum-m"></div>
+      <div class="drum-col drum-col-e" id="stretch-drum-e"></div>
+    </div>
+    <div id="stretch-drum-detail" style="display:none;margin:8px var(--sp) 0;border-radius:var(--r);border:1px solid var(--border);background:var(--card);overflow:hidden"></div>
     <div style="height:8px"></div>
   </div>
 </div>
@@ -1269,6 +1275,7 @@ let logExId='',logFeel='good',logSetCount=3,logWarmupCount=0;
 let editExId=null,editExType='reps';
 let editPlanId=null,editPlanExes=[],editPlanColor='green',editPlanDays=[];
 let exFilter='all',exSearch='';
+let _adhocDrumMuscle = 'legs';
 let exportText='';
 
 function load(){
@@ -1947,32 +1954,7 @@ function saveNote(){
   S.notes.unshift({exId,text,date:new Date().toISOString().split('T')[0]});
   save();document.getElementById('note-modal').classList.remove('show');renderStanding();toast('Note saved!');
 }
-function renderExLib(){
-  exSearch=(document.getElementById('ex-search')||{}).value||'';
-  const AX=allEx();
-  const muscles=['all','legs','back','chest','shoulders','arms','cardio','balance'];
-  const mf=document.getElementById('muscle-filters');mf.innerHTML='';
-  muscles.forEach(m=>{
-    const btn=document.createElement('button');btn.className='filter-pill'+(exFilter===m?' active':'');
-    btn.textContent=m==='all'?'All':MUSCLE_LABELS[m]||m;
-    btn.onclick=()=>{exFilter=m;renderExLib();};mf.appendChild(btn);
-  });
-  let ids=Object.keys(AX);
-  if(exFilter!=='all')ids=ids.filter(id=>AX[id].muscle===exFilter);
-  if(exSearch)ids=ids.filter(id=>AX[id].name.toLowerCase().includes(exSearch.toLowerCase()));
-  const _elc=document.getElementById('ex-lib-count');if(_elc)_elc.textContent=ids.length+' exercises in library';
-  const c=document.getElementById('ex-lib-content');c.innerHTML='';
-  if(!ids.length){c.innerHTML='<div class="empty"><div class="empty-icon"></div><div class="empty-title">No exercises found</div></div>';return;}
-  ids.forEach(id=>{
-    const ex=AX[id],isCustom=!!S.customExercises[id];
-    const emoji=ex.muscle==='legs'?'LEG':ex.muscle==='back'?'BCK':ex.muscle==='chest'?'CHT':ex.muscle==='shoulders'?'SHD':ex.muscle==='arms'?'ARM':ex.muscle==='cardio'?'':ex.muscle==='balance'?'BAL':'FUL';
-    const pb=S.records[id];
-    const pbHint=pb?(ex.type==='weight'?` <span style="font-size:10px;color:var(--gold);font-weight:900"> ${pb.weight||'—'}lbs</span>`:' <span style="font-size:10px;color:var(--gold);font-weight:900"></span>'):'';
-    const row=document.createElement('div');row.className='lib-row';
-    row.innerHTML=`<div class="lib-icon">${emoji}</div><div class="lib-body"><div class="lib-name">${ex.name}${isCustom?'<span class="lib-badge">Custom</span>':''}${pbHint}</div><div class="lib-meta">${ex.type==='weight'?'Weight':ex.type==='time'?'Timed':'Reps'} · ${MUSCLE_LABELS[ex.muscle]||ex.muscle}</div></div><div style="display:flex;gap:6px">${(ex.ace||ex.yt)?`<a href="${ex.ace||ex.yt}" target="_blank" class="icon-btn" style="background:var(--blue-l)"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`:''}${isCustom?`<button class="icon-btn" onclick="openEditExModal('${id}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}</div>`;
-    c.appendChild(row);
-  });
-}
+function renderExLib(){ initExLibDrum(); }
 
 function openAddExModal(){
   editExId=null;editExType='reps';
@@ -2300,6 +2282,178 @@ function _drumBuildEx(eCol) {
 }
 
 function addExToPlan() {} // kept as stub — replaced by drum picker tap
+
+// ── Generic drum picker factory ─────────────────────────────────────────────
+// groups: [{key, label}]
+// getItems: key => [{id, label, done?}]
+// onTap: (id, el) => void
+// initialKey: optional starting group key
+function makeDrumPicker(mColEl, eColEl, groups, getItems, onTap, initialKey) {
+  const startIdx = Math.max(0, groups.findIndex(g => g.key === (initialKey || groups[0].key)));
+  let _activeKey = groups[startIdx] ? groups[startIdx].key : null;
+
+  // Left (group) column
+  mColEl.innerHTML = '';
+  _drumSpacer(mColEl);
+  groups.forEach((g, i) => {
+    const el = document.createElement('div');
+    el.className = 'drum-item' + (i === startIdx ? ' drum-on' : '');
+    el.dataset.idx = i; el.dataset.key = g.key;
+    el.textContent = g.label;
+    mColEl.appendChild(el);
+  });
+  _drumSpacer(mColEl);
+  mColEl.scrollTop = startIdx * DRUM_IH;
+
+  // Right (item) column builder
+  function buildRight(key) {
+    _activeKey = key;
+    const items = getItems(key);
+    if (eColEl._dpS) eColEl.removeEventListener('scroll', eColEl._dpS);
+    if (eColEl._dpC) eColEl.removeEventListener('click', eColEl._dpC);
+    eColEl.innerHTML = '';
+    _drumSpacer(eColEl);
+    items.forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'drum-item' + (i === 0 ? ' drum-on' : '') + (item.done ? ' drum-done' : '');
+      el.dataset.idx = i; el.dataset.id = item.id;
+      el.textContent = item.label;
+      eColEl.appendChild(el);
+    });
+    if (!items.length) {
+      const el = document.createElement('div');
+      el.className = 'drum-item'; el.style.opacity = '.35'; el.textContent = '—';
+      eColEl.appendChild(el);
+    }
+    _drumSpacer(eColEl);
+    eColEl.scrollTop = 0;
+    const maxIdx = Math.max(0, items.length - 1);
+    eColEl._dpS = () => {
+      const idx = Math.max(0, Math.min(Math.round(eColEl.scrollTop / DRUM_IH), maxIdx));
+      _drumMarkCenter(eColEl, idx);
+    };
+    eColEl.addEventListener('scroll', eColEl._dpS, {passive: true});
+    eColEl._dpC = e => {
+      const el = e.target.closest('[data-id]');
+      if (!el) return;
+      const idx = parseInt(el.dataset.idx);
+      eColEl.scrollTo({top: idx * DRUM_IH, behavior: 'smooth'});
+      _drumMarkCenter(eColEl, idx);
+      onTap(el.dataset.id, el);
+    };
+    eColEl.addEventListener('click', eColEl._dpC);
+  }
+
+  if (_activeKey) buildRight(_activeKey);
+
+  // Left column scroll → switch group
+  let _mT;
+  mColEl.addEventListener('scroll', () => {
+    clearTimeout(_mT);
+    _mT = setTimeout(() => {
+      const idx = Math.max(0, Math.min(Math.round(mColEl.scrollTop / DRUM_IH), groups.length - 1));
+      _drumMarkCenter(mColEl, idx);
+      const key = groups[idx].key;
+      if (key !== _activeKey) buildRight(key);
+    }, 80);
+  }, {passive: true});
+
+  // Left column tap
+  mColEl.addEventListener('click', e => {
+    const item = e.target.closest('[data-key]');
+    if (!item) return;
+    const idx = parseInt(item.dataset.idx);
+    mColEl.scrollTo({top: idx * DRUM_IH, behavior: 'smooth'});
+    _drumMarkCenter(mColEl, idx);
+    buildRight(groups[idx].key);
+  });
+
+  return { refresh() { if (_activeKey) buildRight(_activeKey); } };
+}
+
+// ── Exercise library drum ────────────────────────────────────────────────────
+function initExLibDrum() {
+  const mCol = document.getElementById('ex-drum-m');
+  const eCol = document.getElementById('ex-drum-e');
+  if (!mCol || !eCol) return;
+  const AX = allEx();
+  const ML = {legs:'Legs',back:'Back',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance',full:'Full Body'};
+  makeDrumPicker(mCol, eCol, DRUM_GROUPS,
+    key => Object.keys(AX).filter(id => AX[id].muscle === key).map(id => ({ id, label: AX[id].name })),
+    id => {
+      const el = document.getElementById('ex-drum-detail');
+      if (!el) return;
+      const ex = AX[id]; if (!ex) return;
+      const isCustom = !!S.customExercises[id];
+      const pb = S.records[id];
+      let pbHtml = '';
+      if (pb) {
+        if (ex.type==='weight') pbHtml=`<div style="font-size:11px;color:var(--gold);font-weight:800;margin-top:3px">PB: ${pb.weight||'—'}lbs × ${pb.reps||'—'} reps</div>`;
+        else if (ex.type==='time') pbHtml=`<div style="font-size:11px;color:var(--gold);font-weight:800;margin-top:3px">Best: ${pb.best}s</div>`;
+        else pbHtml=`<div style="font-size:11px;color:var(--gold);font-weight:800;margin-top:3px">Best: ${pb.totalReps} reps</div>`;
+      }
+      el.style.display = 'block';
+      el.innerHTML = `<div style="padding:11px var(--sp);display:flex;align-items:flex-start;gap:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:800;color:var(--text)">${ex.name}</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:2px">${ML[ex.muscle]||ex.muscle} · ${ex.type}</div>
+          ${pbHtml}
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+          ${(ex.ace||ex.yt)?`<a href="${ex.ace||ex.yt}" target="_blank" class="icon-btn" style="background:var(--blue-l)" title="Guide"><svg viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2" width="16" height="16"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`:''}
+          ${isCustom?`<button class="icon-btn" onclick="openEditExModal('${id}')" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="16" height="16"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>`:''}
+          <button onclick="addToTodayFromLib('${id}')" style="padding:6px 10px;border-radius:var(--rs);border:1px solid var(--green);background:var(--green-l);color:var(--green);font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap">+ Today</button>
+        </div>
+      </div>`;
+    }
+  );
+}
+
+function addToTodayFromLib(id) {
+  const already = (S.adhocExercises[curDK] || []).includes(id);
+  addAdhocEx(id);
+  if (!already) toast('Added to today!');
+}
+
+// ── Stretch library drum ─────────────────────────────────────────────────────
+const STRETCH_DRUM_GROUPS = [
+  {key:'hips',  label:'Hips'},
+  {key:'legs',  label:'Legs'},
+  {key:'back',  label:'Back'},
+  {key:'chest', label:'Chest'},
+  {key:'arms',  label:'Arms'},
+];
+const STRETCH_GROUP_IDS = {
+  hips:  ['hip-flexor','piriformis','glute','groin','it-band','hip-circle','lateral-band'],
+  legs:  ['quad','hamstring','calf','ankle','foam-quad','foam-it'],
+  back:  ['lower-back','child','cat-cow','thoracic','spinal-twist','lat','foam-upper'],
+  chest: ['chest','chest-floor','shoulder-cross','shoulder-up','rear-delt'],
+  arms:  ['bicep','tricep','wrist','neck','neck-roll'],
+};
+
+function initStretchDrum() {
+  const mCol = document.getElementById('stretch-drum-m');
+  const eCol = document.getElementById('stretch-drum-e');
+  if (!mCol || !eCol) return;
+  makeDrumPicker(mCol, eCol, STRETCH_DRUM_GROUPS,
+    key => (STRETCH_GROUP_IDS[key] || [])
+      .filter(sid => STRETCHES[sid])
+      .map(sid => ({ id: sid, label: STRETCHES[sid].n })),
+    sid => {
+      const el = document.getElementById('stretch-drum-detail');
+      if (!el) return;
+      const s = STRETCHES[sid]; if (!s) return;
+      el.style.display = 'block';
+      el.innerHTML = `<div style="padding:11px var(--sp);display:flex;align-items:center;gap:10px">
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:800;color:var(--text)">${s.n}</div>
+          <div style="font-size:11px;color:var(--muted);font-weight:600;margin-top:2px">${s.d}</div>
+        </div>
+        ${(s.a&&s.a!=='#')?`<a href="${s.a}" target="_blank" class="stretch-lib-link">Guide</a>`:''}
+      </div>`;
+    }
+  );
+}
 
 function renderPlanDays(){
   const c=document.getElementById('pm-days');c.innerHTML='';
@@ -3417,43 +3571,28 @@ function renderAdhocCard(container) {
     }
   });
 
-  // Search + filter UI
-  const searchWrap = document.createElement('div');
-  searchWrap.className = 'adhoc-search-wrap';
-  searchWrap.innerHTML = `
-    <svg class="adhoc-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input class="adhoc-search-input" id="adhoc-search-input" placeholder="Search exercises…" oninput="renderAdhocResults()" autocomplete="off">
-  `;
-  card.appendChild(searchWrap);
-
-  // Muscle filter pills
-  const filterRow = document.createElement('div');
-  filterRow.className = 'adhoc-filter-row';
-  filterRow.id = 'adhoc-filter-row';
-  const muscles = ['all','legs','back','chest','shoulders','arms','cardio','balance'];
-  const MUSCLE_SHORT = {all:'All',legs:'Legs',back:'Back',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance'};
-  muscles.forEach(m => {
-    const pill = document.createElement('button');
-    pill.className = 'adhoc-filter-pill' + (m === 'all' ? ' active' : '');
-    pill.dataset.muscle = m;
-    pill.textContent = MUSCLE_SHORT[m];
-    pill.onclick = () => {
-      document.querySelectorAll('.adhoc-filter-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      renderAdhocResults();
-    };
-    filterRow.appendChild(pill);
-  });
-  card.appendChild(filterRow);
-
-  // Results container
-  const results = document.createElement('div');
-  results.className = 'adhoc-results';
-  results.id = 'adhoc-results';
-  card.appendChild(results);
+  // Drum-roll picker — inline inside the card
+  const dWrap = document.createElement('div');
+  dWrap.className = 'drum-wrap drum-wrap-inline';
+  dWrap.innerHTML = '<div class="drum-sel"></div><div class="drum-div"></div>';
+  const dMCol = document.createElement('div'); dMCol.className = 'drum-col drum-col-m';
+  const dECol = document.createElement('div'); dECol.className = 'drum-col drum-col-e';
+  dWrap.appendChild(dMCol); dWrap.appendChild(dECol);
+  card.appendChild(dWrap);
   container.appendChild(card);
-  // Render initial search results
-  renderAdhocResults();
+
+  const _AX2 = allEx();
+  makeDrumPicker(dMCol, dECol, DRUM_GROUPS,
+    key => {
+      _adhocDrumMuscle = key;
+      const already = S.adhocExercises[curDK] || [];
+      return Object.keys(_AX2)
+        .filter(id => _AX2[id].muscle === key)
+        .map(id => ({ id, label: _AX2[id].name, done: already.includes(id) }));
+    },
+    id => addAdhocEx(id),
+    _adhocDrumMuscle
+  );
 }
 
 function addAdhocEx(id) {
@@ -4084,48 +4223,7 @@ function applyPack(packId) {
 }
 
 // ══ STRETCH LIBRARY ═════════════════════════════════════════════════════
-function renderStretchLib() {
-  const el = document.getElementById('stretch-lib-content');
-  if (!el) return;
-  el.innerHTML = '';
-
-  // Group stretches by body area
-  const GROUPS = [
-    { label: 'Hips & Glutes', icon: 'H', ids: ['hip-flexor','piriformis','glute','groin','it-band','hip-circle','lateral-band'] },
-    { label: 'Legs', icon: 'L', ids: ['quad','hamstring','calf','ankle','foam-quad','foam-it'] },
-    { label: 'Back & Core', icon: 'B', ids: ['lower-back','child','cat-cow','thoracic','spinal-twist','lat','foam-upper'] },
-    { label: 'Chest & Shoulders', icon: 'C', ids: ['chest','chest-floor','shoulder-cross','shoulder-up','rear-delt'] },
-    { label: 'Arms & Wrists', icon: 'A', ids: ['bicep','tricep','wrist','neck','neck-roll'] },
-  ];
-
-  GROUPS.forEach(group => {
-    const validIds = group.ids.filter(sid => STRETCHES[sid]);
-    if (!validIds.length) return;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'stretch-lib-group';
-
-    let html = `<div class="stretch-lib-group-title">${group.label}</div>`;
-    html += '<div class="stretch-lib-row">';
-    validIds.forEach(sid => {
-      const s = STRETCHES[sid];
-      if (!s) return;
-      const hasLink = s.a && s.a !== '#';
-      html += `
-        <div class="stretch-lib-item">
-          <div class="stretch-lib-icon">${group.icon}</div>
-          <div class="stretch-lib-body">
-            <div class="stretch-lib-name">${s.n}</div>
-            <div class="stretch-lib-dur">${s.d}</div>
-          </div>
-          ${hasLink ? `<a class="stretch-lib-link" href="${s.a}" target="_blank">Guide</a>` : ''}
-        </div>`;
-    });
-    html += '</div>';
-    wrap.innerHTML = html;
-    el.appendChild(wrap);
-  });
-}
+function renderStretchLib(){ initStretchDrum(); }
 
 
 // ══ UPCOMING WORKOUTS ═════════════════════════════════════════════════
