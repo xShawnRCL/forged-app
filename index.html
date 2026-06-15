@@ -1675,15 +1675,38 @@ function toggleCheck(exId){
 }
 
 function updateStreak(){
-  const today=new Date();let streak=0;
-  for(let i=0;i<=90;i++){
+  const today=new Date();
+  const allP=allPlans();
+  // Resolve the assigned plan ID for any past date, respecting alt-week schedule
+  function pidForDate(d){
+    if(!S.useAltWeeks)return S.weekAssignment[d.getDay()];
+    const isB=getISOWeek(d)%2===0;
+    return(isB?S.weekAssignmentB:S.weekAssignment)[d.getDay()];
+  }
+  let streak=0;
+  for(let i=0;i<=365;i++){
     const d=new Date(today);d.setDate(d.getDate()-i);
-    const dow=d.getDay(),pid=S.weekAssignment[dow];
-    if(!pid||pid==='rest'||pid==='active')continue;
-    const plan=allPlans()[pid];if(!plan||!plan.exercises.length)continue;
-    const k=dk(d),ch=S.checked[k]||{};
-    const adhocToday=(S.adhocExercises[k]||[]);
-    if(plan.exercises.some(id=>ch[id])||adhocToday.some(id=>ch[id]))streak++;else if(i>0)break;
+    const k=dk(d),pid=pidForDate(d);
+    // Rest day: always passes — never counts, never breaks
+    if(!pid||pid==='rest')continue;
+    const ch=S.checked[k]||{};
+    const adhocIds=S.adhocExercises[k]||[];
+    let done=false;
+    if(pid==='active'){
+      // Active day: any logged exercise, any adhoc checked, a day note, or a BW entry counts
+      const hasLog=Object.keys(S.logs[k]||{}).length>0;
+      const hasBW=(S.bwEntries||[]).some(e=>e.date===k);
+      const hasNote=!!(S.dayNotes||{})[k];
+      const hasAdhoc=adhocIds.some(id=>ch[id]);
+      done=hasLog||hasBW||hasNote||hasAdhoc;
+    }else{
+      // Workout day: at least one plan or adhoc exercise checked
+      const plan=allP[pid];
+      if(!plan||!plan.exercises.length)continue;// no exercises defined — skip day
+      done=flattenExIds(plan.exercises).some(id=>ch[id])||adhocIds.some(id=>ch[id]);
+    }
+    if(done)streak++;
+    else if(i>0)break;// today (i=0) never breaks — workout might not be done yet
   }
   S.streak=streak;if(streak>(S.bestStreak||0))S.bestStreak=streak;
 }
@@ -2939,7 +2962,7 @@ function saveBwEntry() {
   S.bwEntries = S.bwEntries.filter(e => e.date !== today);
   S.bwEntries.push({ date: today, val, unit: S.bwUnit });
   S.bwEntries.sort((a, b) => a.date.localeCompare(b.date));
-  save();
+  updateStreak();save();
   input.value = '';
   renderBwSection();
   toast('Weight logged!');
@@ -3132,8 +3155,9 @@ function renderMonthlySummary() {
     if (!plan || !plan.exercises.length) continue;
     const dateStr = dk(d);
     const ch = S.checked[dateStr] || {};
-    const done = plan.exercises.filter(id => ch[id]).length;
-    const total = plan.exercises.length;
+    const flat = flattenExIds(plan.exercises);
+    const done = flat.filter(id => ch[id]).length;
+    const total = flat.length;
     if (done === total) sessionsComplete++;
     else if (done > 0) sessionsPartial++;
     else sessionsMissed++;
@@ -3152,12 +3176,21 @@ function renderMonthlySummary() {
   for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
     const dow = d.getDay();
     const pid = getPlanForDay(dow);
-    if (!pid || pid === 'rest' || pid === 'active') continue;
-    const plan = allPlans()[pid];
-    if (!plan) continue;
+    if (!pid || pid === 'rest') continue; // rest days never count or break
     const dateStr = dk(d);
     const ch = S.checked[dateStr] || {};
-    const done = plan.exercises.some(id => ch[id]);
+    const adhocIds = S.adhocExercises[dateStr] || [];
+    let done = false;
+    if (pid === 'active') {
+      done = Object.keys(S.logs[dateStr]||{}).length>0
+        ||(S.bwEntries||[]).some(e=>e.date===dateStr)
+        ||!!(S.dayNotes||{})[dateStr]
+        ||adhocIds.some(id=>ch[id]);
+    } else {
+      const plan = allPlans()[pid];
+      if (!plan || !plan.exercises.length) continue;
+      done = flattenExIds(plan.exercises).some(id=>ch[id]) || adhocIds.some(id=>ch[id]);
+    }
     if (done) { currentStreak++; bestStreak = Math.max(bestStreak, currentStreak); }
     else currentStreak = 0;
   }
@@ -3775,7 +3808,7 @@ function saveDayNote() {
   if (!S.dayNotes) S.dayNotes = {};
   if (text) S.dayNotes[curDK] = text;
   else delete S.dayNotes[curDK];
-  save();
+  updateStreak();save();
   const btn = document.getElementById('day-note-save-btn');
   if (btn) { btn.textContent = 'Saved'; setTimeout(() => { btn.textContent = 'Save'; btn.classList.remove('show'); }, 1200); }
   toast('Note saved!');
