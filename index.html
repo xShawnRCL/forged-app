@@ -32,9 +32,9 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--dark)}
 body{color:var(--text);display:flex;flex-direction:column;max-width:600px;margin:0 auto;width:100%}
-.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(84px + var(--safe-bottom));display:none;-webkit-overflow-scrolling:touch}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(96px + var(--safe-bottom));display:none;-webkit-overflow-scrolling:touch}
 .screen.active{display:block}
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--dark2);backdrop-filter:blur(24px);border-top:0.5px solid var(--border);padding:6px 0 calc(6px + var(--safe-bottom));display:flex;justify-content:space-around;align-items:stretch;z-index:100}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--dark2);backdrop-filter:blur(24px);border-top:0.5px solid var(--border);padding:8px 0 calc(10px + var(--safe-bottom));display:flex;justify-content:space-around;align-items:stretch;z-index:100}
 .nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 0;border:none;background:none;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;flex:1;min-width:0}
 .nav-btn.active{color:var(--green)}
 .nav-btn svg{width:21px;height:21px;stroke-width:1.8}
@@ -79,7 +79,7 @@ body{color:var(--text);display:flex;flex-direction:column;max-width:600px;margin
 
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px)}
 .modal-overlay.show{display:flex}
-.modal{background:var(--dark2);border-radius:22px 22px 0 0;width:100%;max-width:600px;padding:18px var(--sp) calc(22px + var(--safe-bottom));max-height:90vh;overflow-y:auto;border-top:1px solid var(--border)}
+.modal{background:var(--dark2);border-radius:22px 22px 0 0;width:100%;max-width:600px;padding:18px var(--sp) calc(28px + var(--safe-bottom));max-height:90vh;overflow-y:auto;border-top:1px solid var(--border)}
 .modal-handle{width:36px;height:4px;background:var(--dark4);border-radius:2px;margin:0 auto 14px}
 .modal-title{font-size:18px;font-weight:900;margin-bottom:2px;letter-spacing:-.2px}
 .modal-sub{font-size:12px;color:var(--muted);margin-bottom:14px;font-weight:600}
@@ -635,6 +635,15 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 .upcoming-name{font-size:13px;font-weight:700;color:var(--text);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .upcoming-exs{font-size:11px;color:var(--muted);font-weight:500;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .upcoming-today-label{font-size:9px;font-weight:900;color:var(--green);text-transform:uppercase;letter-spacing:.08em;padding:1px 6px;border-radius:20px;border:1px solid var(--green);margin-left:4px;flex-shrink:0}
+
+/* SWIPE TO DELETE — exercise rows */
+.swipe-wrap{position:relative;overflow:hidden}
+.swipe-delete-bg{position:absolute;right:0;top:0;bottom:0;width:80px;background:var(--red);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;transform:translateX(100%);transition:transform .15s ease}
+.swipe-delete-bg svg{width:18px;height:18px;stroke:#fff;stroke-width:2}
+.swipe-delete-bg span{font-size:9px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.06em}
+.swipe-inner{position:relative;background:var(--card);transition:transform .2s ease;will-change:transform;z-index:1}
+.swipe-wrap.swiping .swipe-inner{transition:none}
+.swipe-wrap.swiping .swipe-delete-bg{transition:none}
 </style>
 </head>
 <body>
@@ -745,7 +754,7 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 <div class="screen" id="screen-standing">
   <div class="standing-hero">
     <div class="s-name" id="standing-name">FORGED</div>
-    <div class="s-title">Me</div>
+    <div class="s-title">Profile</div>
     <div class="s-sub">Progress, records & goals</div>
     <button class="settings-gear-btn" onclick="showScreen('settings')" title="Settings">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
@@ -901,7 +910,7 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 4v16M18 4v16M2 8h4M18 8h4M2 16h4M18 16h4"/></svg>TRAIN
   </button>
   <button class="nav-btn" onclick="showScreen('standing',this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>ME
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>PROFILE
   </button>
 </nav>
 <button class="fab" id="fab" onclick="openAddExModal()">+</button>
@@ -982,8 +991,12 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
     <label class="form-label">Exercises in plan</label>
     <div id="pm-ex-list" class="plan-ex-list"></div>
     <div class="modal-sec-label" style="margin-top:7px">Add exercise</div>
-    <select class="form-select" id="pm-add-sel"></select>
-    <button class="btn-secondary" style="margin-top:0" onclick="addExToPlan()">+ Add selected</button>
+    <div style="position:relative;margin-bottom:5px">
+      <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="form-input" id="pm-ex-search" placeholder="Search exercises…" style="padding-left:32px" oninput="renderPlanExPicker()" autocomplete="off">
+    </div>
+    <div id="pm-muscle-filters" style="display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px;margin-bottom:4px"></div>
+    <div id="pm-ex-results" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--rs);background:var(--dark3);margin-bottom:4px"></div>
     <div class="modal-divider"></div>
     <label class="form-label">Assign to days</label>
     <div class="feel-row" id="pm-days" style="flex-wrap:wrap;gap:5px"></div>
@@ -1237,7 +1250,7 @@ const MUSCLE_LABELS={legs:'Legs',back:'Back & Core',chest:'Chest',shoulders:'Sho
 const COL={green:'var(--green)',fire:'var(--fire)',purple:'var(--purple)',blue:'var(--blue)',gold:'var(--gold)',gray:'var(--muted)'};
 const COL_L={green:'var(--green-l)',fire:'var(--fire-l)',purple:'var(--purple-l)',blue:'var(--blue-l)',gold:'var(--gold-l)',gray:'var(--dark3)'};
 
-let S={checked:{},logs:{},records:{},streak:0,bestStreak:0,name:'',startDate:null,customExercises:{},customPlans:{},weekAssignment:{...DEFAULT_WEEK},weekAssignmentB:{...DEFAULT_WEEK},useAltWeeks:false,notes:[],bwEntries:[],bwUnit:'lbs',adhocExercises:{},exUnits:{},dayNotes:{}};
+let S={checked:{},logs:{},records:{},streak:0,bestStreak:0,name:'',startDate:null,customExercises:{},customPlans:{},weekAssignment:{...DEFAULT_WEEK},weekAssignmentB:{...DEFAULT_WEEK},useAltWeeks:false,notes:[],bwEntries:[],bwUnit:'lbs',adhocExercises:{},exUnits:{},dayNotes:{},hiddenExercises:{}};
 let curDK='',curDow=new Date().getDay();
 let logExId='',logFeel='good',logSetCount=3,logWarmupCount=0;
 let editExId=null,editExType='reps';
@@ -1252,7 +1265,7 @@ function load(){
   if(!S.bwEntries)S.bwEntries=[];
   if(!S.bwUnit)S.bwUnit='lbs';
   if(!S.adhocExercises)S.adhocExercises={};
-  if(!S.exUnits)S.exUnits={};if(!S.dayNotes)S.dayNotes={};if(!S.weekAssignmentB)S.weekAssignmentB={...DEFAULT_WEEK};if(typeof S.useAltWeeks==='undefined')S.useAltWeeks=false;
+  if(!S.exUnits)S.exUnits={};if(!S.dayNotes)S.dayNotes={};if(!S.hiddenExercises)S.hiddenExercises={};if(!S.weekAssignmentB)S.weekAssignmentB={...DEFAULT_WEEK};if(typeof S.useAltWeeks==='undefined')S.useAltWeeks=false;
 }
 
 function save(){try{localStorage.setItem('forged3',JSON.stringify(S));}catch(e){}}
@@ -1295,7 +1308,8 @@ function renderToday(dow){
   const d=new Date(now);d.setDate(d.getDate()+(dow-todayDow));
   curDK=dk(d);
   const pid=getPlanForDay(dow),plan=pid&&pid!=='rest'&&pid!=='active'?allPlans()[pid]:null;
-  const rawExItems=plan?plan.exercises:[],ch=S.checked[curDK]||{};
+  const _hidden=(S.hiddenExercises||{})[curDK]||[];
+  const rawExItems=(plan?plan.exercises:[]).filter(item=>Array.isArray(item)?true:!_hidden.includes(item)),ch=S.checked[curDK]||{};
   const exIds=flattenExIds(rawExItems);
   const done=exIds.filter(id=>ch[id]).length,total=exIds.length,pct=total?Math.round(done/total*100):0;
   const h=now.getHours(),isToday=dow===todayDow;
@@ -1348,10 +1362,25 @@ function renderToday(dow){
     const lastSess=getLastSession(id,curDK);
     if(lastSess&&!pb)prevLine=`<div class="ex-prev-last">Last session: ${lastSess}</div>`;
     else if(lastSess&&pb)pbLine+=`<div class="ex-prev-last">Last: ${lastSess}</div>`;
-    const row=document.createElement('div');row.className='ex-row';
+    // Swipe-to-delete wrapper
+    const wrap=document.createElement('div');wrap.className='swipe-wrap';
+    const inner=document.createElement('div');inner.className='swipe-inner ex-row';
+    const delBg=document.createElement('div');delBg.className='swipe-delete-bg';
+    delBg.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg><span>Remove</span>';
+    wrap.appendChild(delBg);
     const guideLink=(ex.ace||ex.yt)?`<a href="${ex.ace||ex.yt}" target="_blank" style="font-size:10px;color:var(--blue);font-weight:800;text-decoration:none;flex-shrink:0;padding:4px 7px;border-radius:20px;border:1px solid var(--blue-l);background:var(--blue-l);white-space:nowrap">Guide</a>`:'';
-    row.innerHTML=`<div class="ex-check ${isChecked?'done':''}" onclick="toggleCheck('${id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="2,7 5.5,10.5 12,3"/></svg></div><div class="ex-body"><div class="ex-name">${ex.name}</div><div class="ex-meta">${tgt}</div>${prevLine}${pbLine}</div>${guideLink}<button class="log-btn ${log?'logged':''}" onclick="openLogModal('${id}')">${log?' Logged':'Log'}</button>`;
-    card.appendChild(row);
+    inner.innerHTML=`<div class="ex-check ${isChecked?'done':''}" onclick="toggleCheck('${id}')"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="2,7 5.5,10.5 12,3"/></svg></div><div class="ex-body"><div class="ex-name">${ex.name}</div><div class="ex-meta">${tgt}</div>${prevLine}${pbLine}</div>${guideLink}<button class="log-btn ${log?'logged':''}" onclick="openLogModal('${id}')">${log?' Logged':'Log'}</button>`;
+    wrap.appendChild(inner);
+    // Swipe left to remove from today's ad-hoc or mark hidden
+    initSwipeDelete(wrap, inner, () => {
+      if(!S.adhocExercises[curDK])S.adhocExercises[curDK]=[];
+      // For plan exercises, add to a hidden list for the day
+      if(!S.hiddenExercises)S.hiddenExercises={};
+      if(!S.hiddenExercises[curDK])S.hiddenExercises[curDK]=[];
+      if(!S.hiddenExercises[curDK].includes(id))S.hiddenExercises[curDK].push(id);
+      save();renderToday(curDow);
+    });
+    card.appendChild(wrap);
     if(isChecked){const sg=buildStretchSug(id,AX);if(sg)card.appendChild(sg);}
   });
   content.appendChild(card);
@@ -1633,7 +1662,7 @@ function saveLog(){
   // Pass set count so timer can show set-by-set progress
   const _setsLogged = sets.filter(s => (s.reps||0) > 0 || (s.secs||0) > 0 || (s.weight||0) > 0).length;
   const _setsTarget = ex.sets || logSetCount;
-  startRestTimer(ex.type, ex.name, _setsLogged, _setsTarget);
+  startRestTimer(ex.type, ex.name, _setsLogged, _setsTarget, logExId);
 }
 function renderStanding(){
   const AX=allEx();
@@ -1857,7 +1886,7 @@ function renderPlans(){
 function assignDay(dow,pid,week){
   if(week==='B') S.weekAssignmentB[dow]=pid;
   else S.weekAssignment[dow]=pid;
-  save();renderPlans();renderDayTabs();
+  save();renderPlans();renderDayTabs();renderToday(curDow);
 }
 
 function toggleAltWeeks(){
@@ -1952,11 +1981,75 @@ function mvPEx(idx,dir){const n=idx+dir;if(n<0||n>=editPlanExes.length)return;[e
 function rmPEx(idx){editPlanExes.splice(idx,1);renderPlanExList();}
 
 function renderPlanAddSel(){
-  const sel=document.getElementById('pm-add-sel');sel.innerHTML='';
-  Object.entries(allEx()).forEach(([id,ex])=>{const opt=document.createElement('option');opt.value=id;opt.textContent=ex.name+(S.customExercises[id]?' ':'');sel.appendChild(opt);});
+  // Render muscle filter pills
+  const filterWrap = document.getElementById('pm-muscle-filters');
+  if (!filterWrap) return;
+  if (!filterWrap.children.length) {
+    const muscles = ['all','legs','back','chest','shoulders','arms','cardio','balance'];
+    const LABELS = {all:'All',legs:'Legs',back:'Back',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance'};
+    muscles.forEach(m => {
+      const btn = document.createElement('button');
+      btn.className = 'adhoc-filter-pill' + (m==='all'?' active':'');
+      btn.dataset.muscle = m;
+      btn.textContent = LABELS[m];
+      btn.style.cssText = 'flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--dark3);font-size:10px;font-weight:800;cursor:pointer;color:var(--muted);text-transform:uppercase;letter-spacing:.04em';
+      btn.onclick = () => {
+        filterWrap.querySelectorAll('button').forEach(b => {b.classList.remove('active');b.style.background='var(--dark3)';b.style.color='var(--muted)';b.style.borderColor='var(--border)';});
+        btn.classList.add('active');
+        btn.style.background='var(--green)';btn.style.color='#000';btn.style.borderColor='var(--green)';
+        renderPlanExPicker();
+      };
+      filterWrap.appendChild(btn);
+    });
+  }
+  renderPlanExPicker();
 }
 
-function addExToPlan(){const id=document.getElementById('pm-add-sel').value;if(id&&!editPlanExes.includes(id))editPlanExes.push(id);renderPlanExList();}
+function renderPlanExPicker() {
+  const el = document.getElementById('pm-ex-results');
+  if (!el) return;
+  const AX = allEx();
+  const query = (document.getElementById('pm-ex-search')||{}).value || '';
+  const activePill = document.querySelector('#pm-muscle-filters button.active');
+  const muscle = activePill ? activePill.dataset.muscle : 'all';
+  const already = flattenExIds(editPlanExes);
+
+  let ids = Object.keys(AX);
+  if (muscle !== 'all') ids = ids.filter(id => AX[id].muscle === muscle);
+  if (query.trim()) ids = ids.filter(id => AX[id].name.toLowerCase().includes(query.toLowerCase().trim()));
+  ids = ids.slice(0, 25);
+
+  if (!ids.length) {
+    el.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--muted);text-align:center;font-weight:600">No exercises found</div>';
+    return;
+  }
+
+  const MUSCLE_LABELS = {legs:'Legs',back:'Back',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance',full:'Full Body'};
+  el.innerHTML = '';
+  ids.forEach(id => {
+    const ex = AX[id];
+    const inPlan = already.includes(id);
+    const row = document.createElement('div');
+    row.style.cssText = 'padding:8px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer' + (inPlan?';opacity:0.45':'');
+    row.innerHTML = `
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;color:var(--text)">${ex.name}</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${MUSCLE_LABELS[ex.muscle]||ex.muscle}</div>
+      </div>
+      <div style="font-size:11px;font-weight:900;color:${inPlan?'var(--muted)':'var(--green)'};flex-shrink:0">${inPlan?'Added':'+ Add'}</div>`;
+    if (!inPlan) {
+      row.onclick = () => {
+        editPlanExes.push(id);
+        renderPlanExList();
+        renderPlanExPicker(); // refresh to show as added
+        toast(ex.name + ' added');
+      };
+    }
+    el.appendChild(row);
+  });
+}
+
+function addExToPlan() { /* replaced by renderPlanExPicker row onclick */ }
 
 function renderPlanDays(){
   const c=document.getElementById('pm-days');c.innerHTML='';
@@ -2090,6 +2183,7 @@ let restTotal = 0;
 let restSetMode = true;      // true = set-by-set, false = single timer
 let restCurrentSet = 0;      // which set just finished (1-indexed)
 let restTotalSets = 0;       // total sets for this exercise
+let restExId = null;         // exercise being timed
 
 const REST_DURATIONS = {
   weight: 90,
@@ -2097,12 +2191,13 @@ const REST_DURATIONS = {
   time: 30,
 };
 
-function startRestTimer(exType, exName, setsDone, setsTotal) {
+function startRestTimer(exType, exName, setsDone, setsTotal, exId) {
   if (restTimerInterval) clearInterval(restTimerInterval);
   restTotal = REST_DURATIONS[exType] || 60;
   restRemaining = restTotal;
   restCurrentSet = setsDone || 0;
   restTotalSets = setsTotal || 0;
+  restExId = exId || null;
 
   document.getElementById('rest-timer-label').textContent = 'Rest — ' + exName;
 
@@ -2207,6 +2302,7 @@ function calcProgression(exId) {
   if (!history.length) return null;
 
   const last = history[0].log;
+  const pb = S.records[exId];
 
   if (ex.type === 'weight') {
     // Get last session stats
@@ -2403,6 +2499,7 @@ function getChartData(exId) {
 }
 
 function renderChart(exId) {
+  const ex = allEx()[exId];
   const points = getChartData(exId);
   const pb = S.records[exId];
 
@@ -2461,7 +2558,7 @@ function renderChart(exId) {
   const xStep = Math.ceil(points.length / 6);
   const xLabels = points
     .filter((_, i) => i % xStep === 0 || i === points.length - 1)
-    .map((p, _) => {
+    .map((p, _, arr) => {
       const i = points.indexOf(p);
       return `<text class="lc-axis-label" x="${xScale(i).toFixed(1)}" y="${H - 2}" text-anchor="middle">${p.label}</text>`;
     }).join('');
@@ -2514,6 +2611,7 @@ function showChartTooltip(e, idx) {
   const tip = document.getElementById('lc-tooltip');
   if (!tip) return;
   const svg = e.target.closest('svg');
+  const rect = svg ? svg.getBoundingClientRect() : null;
   const cx = parseFloat(e.target.getAttribute('cx'));
   const svgW = svg ? svg.viewBox.baseVal.width : 360;
   const pct = cx / svgW;
@@ -2526,8 +2624,10 @@ function showChartTooltip(e, idx) {
 
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
+let histView = 'cal';
 
 function setHistView(v) {
+  histView = v;
   document.getElementById('hist-cal-view').style.display = v === 'cal' ? 'block' : 'none';
   document.getElementById('hist-list-view').style.display = v === 'list' ? 'block' : 'none';
   document.getElementById('vt-cal').classList.toggle('active', v === 'cal');
@@ -2595,7 +2695,7 @@ function renderCalendar() {
     const cell = document.createElement('div');
     cell.className = cellClass;
     cell.textContent = day;
-    if (!isFuture) cell.onclick = () => showCalDetail(dateStr, doneIds, isRestDay);
+    if (!isFuture) cell.onclick = () => showCalDetail(dateStr, doneIds, isRestDay, pid);
     grid.appendChild(cell);
   }
 
@@ -2604,7 +2704,7 @@ function renderCalendar() {
   renderFreqChart();
 }
 
-function showCalDetail(dateStr, doneIds, isRestDay) {
+function showCalDetail(dateStr, doneIds, isRestDay, pid) {
   const AX = allEx();
   const detail = document.getElementById('cal-detail');
   const d = new Date(dateStr + 'T12:00:00');
@@ -2733,6 +2833,7 @@ function renderBwSection() {
   const latest = display[display.length - 1].val;
   const first = display[0].val;
   const lowest = Math.min(...display.map(e => e.val));
+  const highest = Math.max(...display.map(e => e.val));
   const totalChange = Math.round((latest - first) * 10) / 10;
   const changeStr = (totalChange > 0 ? '+' : '') + totalChange;
   const changeClass = totalChange < 0 ? 'green' : totalChange > 0 ? 'fire' : 'gold';
@@ -2757,6 +2858,7 @@ function renderBwSection() {
     const pathD = display.map((e, i) => `${i === 0 ? 'M' : 'L'}${xS(i).toFixed(1)},${yS(e.val).toFixed(1)}`).join(' ');
     const areaD = pathD + ` L${xS(display.length - 1).toFixed(1)},${(PAD.t + cH).toFixed(1)} L${xS(0).toFixed(1)},${(PAD.t + cH).toFixed(1)} Z`;
     // Y ticks
+    const yTick1 = Math.round(yMin + yRange * 0.5);
     const gridLines = [yMin, yMin + yRange * 0.5, yMax].map(v =>
       `<line stroke="rgba(255,255,255,0.06)" stroke-width="1" x1="${PAD.l}" y1="${yS(v).toFixed(1)}" x2="${PAD.l + cW}" y2="${yS(v).toFixed(1)}"/>`
     ).join('');
@@ -2945,6 +3047,7 @@ function renderMonthlySummary() {
     if (bestStreak >= 3) highlights.push({ color: 'var(--fire)', text: `Best streak of <strong>${bestStreak} days</strong> in a row` });
     if (topMuscle) highlights.push({ color: 'var(--purple)', text: `Most trained: <strong>${MUSCLE_NAMES[topMuscle[0]] || topMuscle[0]}</strong> (${topMuscle[1]} sets)` });
     if (bwChange !== null) {
+      const dir = bwChange < 0 ? 'down' : bwChange > 0 ? 'up' : 'unchanged';
       const changeStr = bwChange === 0 ? 'unchanged' : (bwChange > 0 ? '+' : '') + bwChange + unit;
       highlights.push({ color: bwChange < 0 ? 'var(--green)' : bwChange > 0 ? 'var(--fire)' : 'var(--muted)', text: `Body weight <strong>${changeStr}</strong> this month` });
     }
@@ -3026,9 +3129,12 @@ function renderAdhocCard(container) {
     if (lastSess && !pb) prevLine = `<div class="ex-prev-last">Last: ${lastSess}</div>`;
     else if (lastSess && pb) pbLine += `<div class="ex-prev-last">Last: ${lastSess}</div>`;
 
-    const row = document.createElement('div');
-    row.className = 'adhoc-ex-row';
-    row.innerHTML = `
+    const aWrap = document.createElement('div'); aWrap.className = 'swipe-wrap';
+    const aInner = document.createElement('div'); aInner.className = 'swipe-inner adhoc-ex-row';
+    const aDelBg = document.createElement('div'); aDelBg.className = 'swipe-delete-bg';
+    aDelBg.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg><span>Remove</span>';
+    aWrap.appendChild(aDelBg);
+    aInner.innerHTML = `
       <div class="ex-check ${isChecked ? 'done' : ''}" onclick="toggleCheck('${id}')">
         <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="2,7 5.5,10.5 12,3"/></svg>
       </div>
@@ -3038,9 +3144,11 @@ function renderAdhocCard(container) {
         ${prevLine}${pbLine}
       </div>
       <button class="log-btn ${log ? 'logged' : ''}" onclick="openLogModal('${id}')">${log ? 'Logged' : 'Log'}</button>
-      <button class="adhoc-rm-btn" onclick="removeAdhocEx(${idx})" title="Remove">×</button>
     `;
-    card.appendChild(row);
+    aWrap.appendChild(aInner);
+    const _capturedIdx = idx;
+    initSwipeDelete(aWrap, aInner, () => removeAdhocEx(_capturedIdx));
+    card.appendChild(aWrap);
 
     // Stretch suggestion
     if (isChecked) {
@@ -3101,6 +3209,8 @@ function addAdhocEx(id) {
 function removeAdhocEx(idx) {
   if (!S.adhocExercises[curDK]) return;
   S.adhocExercises[curDK].splice(idx, 1);
+  // Also uncheck and clear log for removed exercise
+  const id = (S.adhocExercises[curDK] || [])[idx];
   save();
   renderToday(curDow);
 }
@@ -3142,10 +3252,7 @@ function restoreFromFile(event) {
         throw new Error('Not a FORGED backup file.');
       }
       // Strip meta fields
-      const restored = {...data};
-      delete restored._forgedBackup;
-      delete restored._version;
-      delete restored._date;
+      const { _forgedBackup, _version, _date, ...restored } = data;
       // Merge carefully — keep structure intact
       Object.assign(S, {
         checked: restored.checked || {},
@@ -3245,6 +3352,8 @@ function renderWarmupToggle(ex, existing) {
       </div>
     </div>`;
   renderWarmupGrid(ex, existing);
+  // Add working sets label if there are warmups
+  const worklbl = document.getElementById('working-sets-label');
 }
 
 function adjustWarmup(delta) {
@@ -3281,6 +3390,7 @@ function renderWarmupGrid(ex, existing) {
     const pcts = [0.5, 0.7, 0.85, 0.9, 0.95];
     const pb = S.records[logExId];
     // Best reference: most recent logged working weight → PB weight → 0
+    const lastLog = getLastSession(logExId, null); // get any session
     let refWeight = 0;
     if (pb && pb.weight) refWeight = pb.weight;
     // Try to get last actual logged weight from logs
@@ -3655,7 +3765,10 @@ function getWeekLabel() {
 }
 
 // ══ PLAN TABS ══════════════════════════════════════════════════════════
+let planTab = 'week';
+
 function setPlanTab(tab) {
+  planTab = tab;
   ['week','packs','ex','stretch'].forEach(t => {
     const el = document.getElementById('plan-tab-' + t);
     if (el) el.style.display = t === tab ? 'block' : 'none';
@@ -3810,6 +3923,100 @@ function renderUpcoming(container) {
   container.appendChild(card);
 }
 
+
+// ══ SWIPE GESTURES ════════════════════════════════════════════════════
+
+// Swipe-to-delete for exercise/adhoc rows
+// Usage: initSwipeDelete(wrap, inner, onDelete)
+function initSwipeDelete(wrap, inner, onDelete) {
+  let startX = 0, startY = 0, dx = 0, isH = false, tracking = false;
+  const bg = wrap.querySelector('.swipe-delete-bg');
+  const THRESHOLD = 72; // px to trigger delete
+
+  inner.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    dx = 0; isH = false; tracking = true;
+    wrap.classList.add('swiping');
+  }, { passive: true });
+
+  inner.addEventListener('touchmove', e => {
+    if (!tracking) return;
+    const cx = e.touches[0].clientX;
+    const cy = e.touches[0].clientY;
+    const dxRaw = startX - cx; // positive = swipe left
+    const dyRaw = Math.abs(startY - cy);
+    // Lock direction on first meaningful move
+    if (!isH && (Math.abs(dxRaw) > 5 || dyRaw > 5)) {
+      isH = Math.abs(dxRaw) > dyRaw;
+    }
+    if (!isH) return;
+    dx = Math.max(0, Math.min(dxRaw, 100)); // clamp 0–100px left only
+    inner.style.transform = `translateX(${-dx}px)`;
+    if (bg) bg.style.transform = `translateX(${100 - dx}px)`;
+  }, { passive: true });
+
+  inner.addEventListener('touchend', () => {
+    tracking = false;
+    wrap.classList.remove('swiping');
+    if (dx >= THRESHOLD) {
+      // Animate out and delete
+      inner.style.transform = 'translateX(-100%)';
+      if (bg) bg.style.transform = 'translateX(0)';
+      setTimeout(() => {
+        wrap.style.height = wrap.offsetHeight + 'px';
+        wrap.style.transition = 'height .2s ease, opacity .2s ease';
+        wrap.style.opacity = '0';
+        requestAnimationFrame(() => { wrap.style.height = '0'; });
+        setTimeout(() => { onDelete(); }, 220);
+      }, 120);
+    } else {
+      // Snap back
+      inner.style.transform = '';
+      if (bg) bg.style.transform = '';
+    }
+    dx = 0;
+  });
+}
+
+// Swipe between calendar months (left = next, right = prev)
+
+// Swipe between TRAIN sub-tabs
+function initTrainTabSwipe(el) {
+  const TABS = ['week','packs','ex','stretch'];
+  let startX = 0, startY = 0;
+  el.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  el.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+    if (Math.abs(dx) < 50 || dy > Math.abs(dx)) return;
+    const cur = TABS.indexOf(planTab);
+    if (dx < 0 && cur < TABS.length - 1) setPlanTab(TABS[cur + 1]);
+    else if (dx > 0 && cur > 0) setPlanTab(TABS[cur - 1]);
+  }, { passive: true });
+}
+
+function initCalendarSwipe(el) {
+  let startX = 0, startY = 0, locked = false;
+  el.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    locked = false;
+  }, { passive: true });
+  el.addEventListener('touchend', e => {
+    if (locked) return;
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = Math.abs(e.changedTouches[0].clientY - startY);
+    if (Math.abs(dx) < 40 || dy > Math.abs(dx)) return;
+    if (dx < 0) { calMonth++; if(calMonth>11){calMonth=0;calYear++;} }
+    else         { calMonth--; if(calMonth<0){calMonth=11;calYear--;} }
+    renderCalendar();
+  }, { passive: true });
+}
+
 function initSwipeDismiss(modalId) {
   const overlay = document.getElementById(modalId);
   if (!overlay) return;
@@ -3858,6 +4065,10 @@ document.addEventListener('DOMContentLoaded', function() {
   const nameInput = document.getElementById('setting-name');
   if (nameInput) nameInput.addEventListener('input', e => { S.name = e.target.value; save(); });
   ['log-modal','ex-modal','plan-modal','note-modal','export-modal','health-modal','chart-modal'].forEach(initSwipeDismiss);
+  const _trainEl = document.getElementById('screen-plans');
+  if (_trainEl) initTrainTabSwipe(_trainEl);
+  const _calEl = document.getElementById('screen-history');
+  if (_calEl) initCalendarSwipe(_calEl);
 });
 </script>
 </body>
