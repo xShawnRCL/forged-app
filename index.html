@@ -32,9 +32,9 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',sans-serif;background:var(--dark)}
 body{color:var(--text);display:flex;flex-direction:column;max-width:600px;margin:0 auto;width:100%}
-.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(108px + var(--safe-bottom));display:none;-webkit-overflow-scrolling:touch}
+.screen{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(96px + var(--safe-bottom));display:none;-webkit-overflow-scrolling:touch}
 .screen.active{display:block}
-.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:600px;background:var(--dark2);backdrop-filter:blur(24px);border-top:0.5px solid var(--border);padding:8px 0 calc(20px + var(--safe-bottom));display:flex;justify-content:space-around;align-items:stretch;z-index:100}
+.bottom-nav{position:fixed;bottom:calc(var(--safe-bottom) + 10px);left:50%;transform:translateX(-50%);width:calc(100% - 24px);max-width:576px;background:rgba(20,20,22,0.58);backdrop-filter:blur(48px) saturate(180%) brightness(1.1);-webkit-backdrop-filter:blur(48px) saturate(180%) brightness(1.1);border-radius:28px;border:0.5px solid rgba(255,255,255,0.14);box-shadow:0 2px 4px rgba(0,0,0,0.12),0 8px 28px rgba(0,0,0,0.42),0 20px 48px rgba(0,0,0,0.18),inset 0 1px 0 rgba(255,255,255,0.15),inset 0 -0.5px 0 rgba(0,0,0,0.2);padding:10px 0 10px;display:flex;justify-content:space-around;align-items:stretch;z-index:100}
 .nav-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 0;border:none;background:none;cursor:pointer;color:var(--muted);font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;flex:1;min-width:0}
 .nav-btn.active{color:var(--green)}
 .nav-btn svg{width:21px;height:21px;stroke-width:1.8}
@@ -131,7 +131,7 @@ body{color:var(--text);display:flex;flex-direction:column;max-width:600px;margin
 .lib-badge{font-size:9px;font-weight:900;padding:2px 6px;border-radius:20px;background:var(--fire-l);color:var(--fire);border:1px solid rgba(255,107,26,0.2);margin-left:4px;text-transform:uppercase}
 .icon-btn{width:31px;height:31px;border-radius:50%;border:none;background:var(--dark3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .icon-btn svg{width:14px;height:14px;stroke:var(--muted);stroke-width:2}
-.fab{position:fixed;bottom:calc(84px + var(--safe-bottom) + 13px);right:50%;transform:translateX(calc(50% - 15px));width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-d));color:#000;border:none;font-size:28px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(0,200,122,0.4);display:none;align-items:center;justify-content:center;z-index:90}
+.fab{position:fixed;bottom:calc(var(--safe-bottom) + 88px);right:50%;transform:translateX(calc(50% - 15px));width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green-d));color:#000;border:none;font-size:28px;font-weight:700;cursor:pointer;box-shadow:0 4px 24px rgba(0,200,122,0.4);display:none;align-items:center;justify-content:center;z-index:90}
 .fab.show{display:flex}
 .plan-card{background:var(--card);border-radius:var(--r);margin:0 var(--sp) var(--sp-sm);overflow:hidden;border:1px solid var(--border)}
 .plan-header{padding:var(--sp);display:flex;align-items:center;gap:var(--sp-sm)}
@@ -549,7 +549,7 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 }
 [data-theme="light"] html,
 [data-theme="light"] body{background:#f5f5f7}
-[data-theme="light"] .bottom-nav{background:rgba(255,255,255,0.96)}
+[data-theme="light"] .bottom-nav{background:rgba(248,248,250,0.5);border-color:rgba(255,255,255,0.65);box-shadow:0 2px 4px rgba(0,0,0,0.04),0 8px 28px rgba(0,0,0,0.1),0 20px 48px rgba(0,0,0,0.06),inset 0 1px 0 rgba(255,255,255,0.9),inset 0 -0.5px 0 rgba(0,0,0,0.04)}
 [data-theme="light"] .modal{background:#fff}
 [data-theme="light"] .chart-modal{background:#fff}
 [data-theme="light"] .modal-overlay{background:rgba(0,0,0,0.45)}
