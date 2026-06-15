@@ -644,6 +644,20 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
 .swipe-inner{position:relative;background:var(--card);transition:transform .2s ease;will-change:transform;z-index:1}
 .swipe-wrap.swiping .swipe-inner{transition:none}
 .swipe-wrap.swiping .swipe-delete-bg{transition:none}
+/* ── Drum-roll exercise picker ──────────────────────────── */
+.drum-wrap{position:relative;display:flex;height:220px;overflow:hidden;border-radius:14px;border:1px solid var(--border);margin-bottom:8px;user-select:none;-webkit-user-select:none}
+.drum-col{overflow-y:scroll;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior:contain;scroll-snap-stop:always;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.55) 18%,#000 36%,#000 64%,rgba(0,0,0,.55) 82%,transparent 100%);mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.55) 18%,#000 36%,#000 64%,rgba(0,0,0,.55) 82%,transparent 100%)}
+.drum-col::-webkit-scrollbar{display:none}
+.drum-col-m{flex:0 0 36%;background:var(--dark4);border-right:1px solid var(--border)}
+.drum-col-e{flex:1;background:var(--dark3)}
+.drum-item{height:44px;display:flex;align-items:center;padding:0 12px;scroll-snap-align:center;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .12s}
+.drum-item.drum-on{color:var(--text);font-weight:700}
+.drum-item.drum-done{color:var(--green)}
+.drum-item.drum-on.drum-done{color:var(--green);font-weight:700}
+.drum-sel{position:absolute;top:calc(50% - 22px);left:0;right:0;height:44px;background:rgba(255,255,255,.055);border-top:.5px solid rgba(255,255,255,.12);border-bottom:.5px solid rgba(255,255,255,.12);pointer-events:none;z-index:2}
+.drum-div{position:absolute;top:0;bottom:0;left:36%;width:1px;background:var(--border);pointer-events:none;z-index:3}
+[data-theme="light"] .drum-sel{background:rgba(0,0,0,.06);border-color:rgba(0,0,0,.1)}
+[data-theme="light"] .drum-item.drum-on{color:var(--text)}
 </style>
 </head>
 <body>
@@ -989,13 +1003,13 @@ animation:pbsweep 2s ease-in-out .4s infinite;}
     <div class="feel-row" id="pm-colors"></div>
     <label class="form-label">Exercises in plan</label>
     <div id="pm-ex-list" class="plan-ex-list"></div>
-    <div class="modal-sec-label" style="margin-top:7px">Add exercise</div>
-    <div style="position:relative;margin-bottom:5px">
-      <svg style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted)" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="form-input" id="pm-ex-search" placeholder="Search exercises…" style="padding-left:32px" oninput="renderPlanExPicker()" autocomplete="off">
+    <div class="modal-sec-label" style="margin-top:7px">Add exercise — scroll &amp; tap</div>
+    <div class="drum-wrap" id="drum-wrap">
+      <div class="drum-sel"></div>
+      <div class="drum-div"></div>
+      <div class="drum-col drum-col-m" id="drum-col-m"></div>
+      <div class="drum-col drum-col-e" id="drum-col-e"></div>
     </div>
-    <div id="pm-muscle-filters" style="display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:6px;margin-bottom:4px"></div>
-    <div id="pm-ex-results" style="max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--rs);background:var(--dark3);margin-bottom:4px"></div>
     <div class="modal-divider"></div>
     <label class="form-label">Assign to days</label>
     <div class="feel-row" id="pm-days" style="flex-wrap:wrap;gap:5px"></div>
@@ -2085,7 +2099,7 @@ function openPlanModal(id){
   document.getElementById('pm-title').textContent='Edit plan';
   document.getElementById('pm-name').value=plan.name;
   document.getElementById('pm-delete-btn').style.display=plan.builtin?'none':'block';
-  renderPlanColors();renderPlanExList();renderPlanAddSel();renderPlanDays();
+  renderPlanColors();renderPlanExList();initDrumPicker();renderPlanDays();
   document.getElementById('plan-modal').classList.add('show');
 }
 
@@ -2094,7 +2108,7 @@ function openNewPlanModal(){
   document.getElementById('pm-title').textContent='New plan';
   document.getElementById('pm-name').value='';
   document.getElementById('pm-delete-btn').style.display='none';
-  renderPlanColors();renderPlanExList();renderPlanAddSel();renderPlanDays();
+  renderPlanColors();renderPlanExList();initDrumPicker();renderPlanDays();
   document.getElementById('plan-modal').classList.add('show');
 }
 
@@ -2158,76 +2172,134 @@ function rmSSex(pairIdx,subIdx){
 function mvPEx(idx,dir){const n=idx+dir;if(n<0||n>=editPlanExes.length)return;[editPlanExes[idx],editPlanExes[n]]=[editPlanExes[n],editPlanExes[idx]];renderPlanExList();}
 function rmPEx(idx){editPlanExes.splice(idx,1);renderPlanExList();}
 
-function renderPlanAddSel(){
-  // Render muscle filter pills
-  const filterWrap = document.getElementById('pm-muscle-filters');
-  if (!filterWrap) return;
-  if (!filterWrap.children.length) {
-    const muscles = ['all','legs','back','chest','shoulders','arms','cardio','balance'];
-    const LABELS = {all:'All',legs:'Legs',back:'Back',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance'};
-    muscles.forEach(m => {
-      const btn = document.createElement('button');
-      btn.className = 'adhoc-filter-pill' + (m==='all'?' active':'');
-      btn.dataset.muscle = m;
-      btn.textContent = LABELS[m];
-      btn.style.cssText = 'flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--dark3);font-size:10px;font-weight:800;cursor:pointer;color:var(--muted);text-transform:uppercase;letter-spacing:.04em';
-      btn.onclick = () => {
-        filterWrap.querySelectorAll('button').forEach(b => {b.classList.remove('active');b.style.background='var(--dark3)';b.style.color='var(--muted)';b.style.borderColor='var(--border)';});
-        btn.classList.add('active');
-        btn.style.background='var(--green)';btn.style.color='#000';btn.style.borderColor='var(--green)';
-        renderPlanExPicker();
-      };
-      filterWrap.appendChild(btn);
-    });
-  }
-  renderPlanExPicker();
-}
+// ── Drum-roll exercise picker ───────────────────────────────────────────────
+const DRUM_IH = 44; // item height px — must match CSS
+const DRUM_PAD = 88; // spacer px = 2 × DRUM_IH (centres first/last items)
+const DRUM_GROUPS = [
+  {key:'legs',label:'Legs'},
+  {key:'back',label:'Back'},
+  {key:'chest',label:'Chest'},
+  {key:'shoulders',label:'Shoulders'},
+  {key:'arms',label:'Arms'},
+  {key:'cardio',label:'Cardio'},
+  {key:'balance',label:'Balance'},
+];
+let _drumMuscle = 'legs';
 
-function renderPlanExPicker() {
-  const el = document.getElementById('pm-ex-results');
-  if (!el) return;
-  const AX = allEx();
-  const query = (document.getElementById('pm-ex-search')||{}).value || '';
-  const activePill = document.querySelector('#pm-muscle-filters button.active');
-  const muscle = activePill ? activePill.dataset.muscle : 'all';
-  const already = flattenExIds(editPlanExes);
+function initDrumPicker() {
+  const mCol = document.getElementById('drum-col-m');
+  const eCol = document.getElementById('drum-col-e');
+  if (!mCol || !eCol) return;
+  _drumMuscle = DRUM_GROUPS[0].key;
 
-  let ids = Object.keys(AX);
-  if (muscle !== 'all') ids = ids.filter(id => AX[id].muscle === muscle);
-  if (query.trim()) ids = ids.filter(id => AX[id].name.toLowerCase().includes(query.toLowerCase().trim()));
-  ids = ids.slice(0, 25);
-
-  if (!ids.length) {
-    el.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--muted);text-align:center;font-weight:600">No exercises found</div>';
-    return;
-  }
-
-  const MUSCLE_LABELS = {legs:'Legs',back:'Back',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance',full:'Full Body'};
-  el.innerHTML = '';
-  ids.forEach(id => {
-    const ex = AX[id];
-    const inPlan = already.includes(id);
-    const row = document.createElement('div');
-    row.style.cssText = 'padding:8px 10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer' + (inPlan?';opacity:0.45':'');
-    row.innerHTML = `
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:700;color:var(--text)">${ex.name}</div>
-        <div style="font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em">${MUSCLE_LABELS[ex.muscle]||ex.muscle}</div>
-      </div>
-      <div style="font-size:11px;font-weight:900;color:${inPlan?'var(--muted)':'var(--green)'};flex-shrink:0">${inPlan?'Added':'+ Add'}</div>`;
-    if (!inPlan) {
-      row.onclick = () => {
-        editPlanExes.push(id);
-        renderPlanExList();
-        renderPlanExPicker(); // refresh to show as added
-        toast(ex.name + ' added');
-      };
-    }
-    el.appendChild(row);
+  // ── muscle column ──────────────────────────────────────────
+  mCol.innerHTML = '';
+  _drumSpacer(mCol);
+  DRUM_GROUPS.forEach((g, i) => {
+    const el = document.createElement('div');
+    el.className = 'drum-item' + (i === 0 ? ' drum-on' : '');
+    el.dataset.idx = i;
+    el.dataset.key = g.key;
+    el.textContent = g.label;
+    mCol.appendChild(el);
   });
+  _drumSpacer(mCol);
+  mCol.scrollTop = 0;
+
+  // muscle scroll → update exercise column
+  let mT;
+  mCol.addEventListener('scroll', () => {
+    clearTimeout(mT);
+    mT = setTimeout(() => {
+      const idx = Math.max(0, Math.min(Math.round(mCol.scrollTop / DRUM_IH), DRUM_GROUPS.length - 1));
+      _drumMarkCenter(mCol, idx);
+      const key = DRUM_GROUPS[idx].key;
+      if (key !== _drumMuscle) { _drumMuscle = key; _drumBuildEx(eCol); }
+    }, 80);
+  }, {passive: true});
+
+  // muscle tap → snap + switch group
+  mCol.addEventListener('click', e => {
+    const item = e.target.closest('[data-key]');
+    if (!item) return;
+    const idx = parseInt(item.dataset.idx);
+    mCol.scrollTo({top: idx * DRUM_IH, behavior: 'smooth'});
+    _drumMarkCenter(mCol, idx);
+    _drumMuscle = DRUM_GROUPS[idx].key;
+    _drumBuildEx(eCol);
+  });
+
+  // ── exercise column ────────────────────────────────────────
+  _drumBuildEx(eCol);
 }
 
-function addExToPlan() { /* replaced by renderPlanExPicker row onclick */ }
+function _drumSpacer(col) {
+  const sp = document.createElement('div');
+  sp.style.cssText = 'height:' + DRUM_PAD + 'px;flex-shrink:0;pointer-events:none';
+  col.appendChild(sp);
+}
+
+function _drumMarkCenter(col, activeIdx) {
+  col.querySelectorAll('.drum-item').forEach((el, i) => el.classList.toggle('drum-on', i === activeIdx));
+}
+
+function _drumBuildEx(eCol) {
+  const AX = allEx();
+  const already = flattenExIds(editPlanExes);
+  const ids = Object.keys(AX).filter(id => AX[id].muscle === _drumMuscle);
+
+  // Remove old scroll listener if any
+  if (eCol._drumScroll) eCol.removeEventListener('scroll', eCol._drumScroll);
+
+  eCol.innerHTML = '';
+  _drumSpacer(eCol);
+  ids.forEach((id, i) => {
+    const el = document.createElement('div');
+    const inPlan = already.includes(id);
+    el.className = 'drum-item' + (i === 0 ? ' drum-on' : '') + (inPlan ? ' drum-done' : '');
+    el.dataset.exId = id;
+    el.dataset.idx = i;
+    el.textContent = AX[id].name;
+    eCol.appendChild(el);
+  });
+  if (!ids.length) {
+    const el = document.createElement('div');
+    el.className = 'drum-item';
+    el.textContent = 'None';
+    el.style.opacity = '.35';
+    eCol.appendChild(el);
+  }
+  _drumSpacer(eCol);
+  eCol.scrollTop = 0;
+
+  // scroll → highlight center
+  const maxIdx = Math.max(0, ids.length - 1);
+  eCol._drumScroll = () => {
+    const idx = Math.max(0, Math.min(Math.round(eCol.scrollTop / DRUM_IH), maxIdx));
+    _drumMarkCenter(eCol, idx);
+  };
+  eCol.addEventListener('scroll', eCol._drumScroll, {passive: true});
+
+  // tap → center + add
+  eCol._drumClick && eCol.removeEventListener('click', eCol._drumClick);
+  eCol._drumClick = e => {
+    const item = e.target.closest('[data-ex-id]');
+    if (!item) return;
+    const exId = item.dataset.exId;
+    const idx = parseInt(item.dataset.idx);
+    eCol.scrollTo({top: idx * DRUM_IH, behavior: 'smooth'});
+    _drumMarkCenter(eCol, idx);
+    if (!flattenExIds(editPlanExes).includes(exId)) {
+      editPlanExes.push(exId);
+      renderPlanExList();
+      item.classList.add('drum-done'); // mark green without full re-render
+      toast(allEx()[exId].name + ' added');
+    }
+  };
+  eCol.addEventListener('click', eCol._drumClick);
+}
+
+function addExToPlan() {} // kept as stub — replaced by drum picker tap
 
 function renderPlanDays(){
   const c=document.getElementById('pm-days');c.innerHTML='';
