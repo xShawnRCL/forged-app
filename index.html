@@ -1301,6 +1301,162 @@ function showScreen(name,btn){
   if(name==='standing')renderStanding();
   if(name==='settings')renderSettings();
 }
+function getMotivMsg(h, pid, plan, streak){
+  const fn=(S.name||'').split(/\s/)[0];
+  const isRest=pid==='rest', isActive=pid==='active', hasWorkout=!!plan;
+  const pn=plan?plan.name.toLowerCase():'';
+  const isLegs=/leg|squat|glute|hamstring|quad/i.test(pn);
+  const isBack=/back|pull|deadlift|row/i.test(pn);
+  const isChest=/chest|push|bench/i.test(pn);
+  const isShoulders=/shoulder|delt|overhead/i.test(pn);
+  const isArms=/arm|bicep|tricep|curl/i.test(pn);
+  const isCardio=/cardio|run|cycle|endur|conditioning/i.test(pn);
+
+  const MORNING=[
+    'Good morning. Time to build.',
+    'Rise and lift.',
+    'Early session. Most people are still asleep.',
+    'Morning iron. Best decision you\'ll make today.',
+    'Up before the excuses. Good.',
+    'Quiet gym, loud results.',
+    'The morning belongs to those who earn it.',
+    'First rep of the day is always the hardest. Do it.',
+    'Morning session locked in.',
+    'The day starts right when it starts here.',
+    'Early bird gets the gains.',
+    'Coffee and iron. The morning formula.',
+  ];
+  const AFTERNOON=[
+    'Midday grind. Good call.',
+    'Lunch break well spent.',
+    'Afternoon session hits different.',
+    'Most people scrolled. You lifted.',
+    'Energy up. Let\'s work.',
+    'The afternoon belongs to you.',
+    'No better way to break up the day.',
+    'Second wind loading.',
+    'Halfway through the day. Finish it strong.',
+    'Afternoon iron. Underrated.',
+  ];
+  const EVENING=[
+    'Evening session. End the day right.',
+    'Day\'s not done until the iron is moved.',
+    'End strong.',
+    'Evening lifters are built different.',
+    'Most people called it a day. Not you.',
+    'Winding down? Not yet.',
+    'The night shift. Let\'s work.',
+    'Close the day the right way.',
+    'Last push of the day. Make it count.',
+    'Evening grind is quiet dedication.',
+    'The hard part is showing up this late. You did.',
+  ];
+  const NIGHT=[
+    'Late night. The dedication is real.',
+    'When the world sleeps, you train.',
+    'Midnight grind is a different breed.',
+    'Not everyone would do this. You do.',
+    'The late session. It counts double.',
+    'Night owl. Iron bird.',
+  ];
+  const REST=[
+    'Recovery is part of the process.',
+    'Muscles grow on rest days. Take it seriously.',
+    'Rest hard. Train harder tomorrow.',
+    'Today the weights rest. Tomorrow they won\'t.',
+    'The comeback is built on days like this.',
+    'Sleep, eat, recover. That\'s the job today.',
+    'Smart athletes rest on purpose.',
+    'Stillness is strength too.',
+    'Your body is repairing right now. Let it.',
+    'The best sessions start with good recovery.',
+    'Rest day is progress day in disguise.',
+    'Earn the next session by recovering from the last.',
+  ];
+  const ACTIVE=[
+    'Move your body however you want today.',
+    'Active day. No rules. Just move.',
+    'Scheduled freedom. Make it yours.',
+    'Get outside. Do something you love.',
+    'Movement is medicine.',
+    'Today\'s workout is whatever makes you feel good.',
+    'Active recovery still counts.',
+    'No plan needed. Just go.',
+  ];
+  const LEGS=[
+    'Leg day. The most feared, the most rewarding.',
+    'Leg day separates the committed.',
+    'Nobody wants to do leg day. You\'re doing it anyway.',
+    'Quads, hamstrings, glutes. Let\'s go.',
+    'Your legs are about to earn it.',
+    'The biggest muscles deserve the most respect.',
+    'Leg day is character day.',
+  ];
+  const BACK=[
+    'Back day. Build the foundation.',
+    'Strong back, strong everything.',
+    'Pull heavy. The back that carries you.',
+    'Back day is underrated. You know better.',
+    'The muscles they can\'t see are the ones that matter.',
+  ];
+  const CHEST=[
+    'Chest day. Classic.',
+    'Push hard. Build the engine.',
+    'Chest day means business.',
+    'Bench day. Respect it.',
+  ];
+  const SHOULDERS=[
+    'Shoulder day. Build the boulders.',
+    'Delts incoming.',
+    'Overhead press is king. You know this.',
+    'Shoulder session. Press heavy, move well.',
+  ];
+  const ARMS=[
+    'Arm day. You earned it.',
+    'Curl season is year-round.',
+    'Arms. The reward after a week of hard work.',
+    'Biceps and triceps. Let\'s get it.',
+  ];
+  const CARDIO=[
+    'Heart is a muscle. Train it.',
+    'Conditioning work. This is where grit lives.',
+    'Cardio hits different when you lean into it.',
+    'Breathe through it. That\'s the whole skill.',
+    'Cardio day — the discipline nobody posts about.',
+  ];
+
+  let pool=[];
+  if(isRest) pool=REST;
+  else if(isActive) pool=ACTIVE;
+  else{
+    if(h<5) pool=NIGHT;
+    else if(h<12) pool=MORNING;
+    else if(h<17) pool=AFTERNOON;
+    else pool=EVENING;
+    if(isLegs) pool=pool.concat(LEGS);
+    if(isBack) pool=pool.concat(BACK);
+    if(isChest) pool=pool.concat(CHEST);
+    if(isShoulders) pool=pool.concat(SHOULDERS);
+    if(isArms) pool=pool.concat(ARMS);
+    if(isCardio) pool=pool.concat(CARDIO);
+  }
+
+  // Streak bonus messages mixed in
+  if(streak>=3){
+    const sm=[
+      streak+' days straight. Keep the chain alive.',
+      streak+'-day streak. This is who you are now.',
+      streak+' in a row. Don\'t let today break it.',
+      'Day '+streak+'. The streak is sacred.',
+    ];
+    if(Math.random()<0.35) pool=pool.concat(sm);
+  }
+
+  const msg=pool[Math.floor(Math.random()*pool.length)];
+  // Prepend first name ~40% of the time if we have it
+  if(fn&&Math.random()<0.4) return fn+'. '+msg;
+  return msg;
+}
 function renderToday(dow){
   curDow=dow;
   const now=new Date(),todayDow=now.getDay();
@@ -1312,7 +1468,7 @@ function renderToday(dow){
   const exIds=flattenExIds(rawExItems);
   const done=exIds.filter(id=>ch[id]).length,total=exIds.length,pct=total?Math.round(done/total*100):0;
   const h=now.getHours(),isToday=dow===todayDow;
-  document.getElementById('today-title').textContent=isToday?(S.name?'Let\'s go, '+S.name+'.':(h<12?'Morning. Let\'s work.':h<17?'Afternoon. Let\'s grind.':'Evening. Get after it.')):DAYS_L[dow];
+  document.getElementById('today-title').textContent=isToday?getMotivMsg(h,pid,plan,S.streak||0):DAYS_L[dow];
   const _wkLabel=getWeekLabel();
   document.getElementById('today-date').textContent=d.toLocaleDateString('en-CA',{weekday:'long',month:'long',day:'numeric'})+(_wkLabel?' — '+_wkLabel:'');
   document.getElementById('streak-val').textContent=S.streak||0;
