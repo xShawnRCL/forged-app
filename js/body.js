@@ -78,10 +78,13 @@ const BODY_BACK = {
   detail: 'M92 62C93 66 95 69 97 70M78 352C83 349 89 349 93 352',
 };
 
+// Three-stop scale so levels read at a glance: grey (none) → green (some)
+// → sky blue (hit the target and beyond).
 function muscleFill(v, target) {
   if (!v) return 'var(--body-muscle)';
-  const pct = Math.round(25 + 75 * clamp(v / target, 0, 1));
-  return `color-mix(in srgb, var(--tint) ${pct}%, var(--body-muscle))`;
+  const r = clamp(v / target, 0, 1);
+  if (r <= 0.5) return `color-mix(in srgb, var(--tint) ${Math.round(30 + 140 * r)}%, var(--body-muscle))`;
+  return `color-mix(in srgb, var(--body-high) ${Math.round((r - 0.5) * 200)}%, var(--tint))`;
 }
 
 function bodySVG(view, vol, target, label) {
@@ -118,7 +121,7 @@ function renderBodyMap() {
   const behind = total ? big.filter(m => vol[m] < target * 0.34).sort((a, b) => vol[a] - vol[b]).slice(0, 4) : [];
   el.innerHTML = `
     <div class="body-figs">${bodySVG(BODY_FRONT, vol, target, 'Front')}${bodySVG(BODY_BACK, vol, target, 'Back')}</div>
-    <div class="body-legend"><span>Less</span><i></i><span>More</span></div>
+    <div class="body-legend"><i></i><div class="body-ticks"><span>0</span><span>${Math.round(target / 2)}</span><span>${Math.round(target)}+ sets</span></div></div>
     ${readout}
     ${behind.length ? `<div class="body-behind"><div class="k">Could use more work</div><div class="chips flush">${behind.map(m =>
       `<button class="chip" data-m="${m}" aria-pressed="${bodySelected === m}">${MUSCLES[m]} · ${fmtSets(vol[m], true)}</button>`).join('')}</div></div>` : ''}

@@ -1297,9 +1297,9 @@ svg { display: block; }
 .btn:disabled { pointer-events: none; }
 
 /* ── v2.1: set check-off, workout mode, programs, body map ──────────────── */
-:root { --body-base: #E3E3E8; --body-muscle: #CDCDD3; }
-:root[data-theme="dark"] { --body-base: #2A2A2D; --body-muscle: #3D3D41; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --body-base: #2A2A2D; --body-muscle: #3D3D41; } }
+:root { --body-base: #E3E3E8; --body-muscle: #CDCDD3; --body-high: #34B9F7; }
+:root[data-theme="dark"] { --body-base: #2A2A2D; --body-muscle: #3D3D41; --body-high: #64D2FF; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --body-base: #2A2A2D; --body-muscle: #3D3D41; --body-high: #64D2FF; } }
 
 /* Set chips — one tap per set */
 .set-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
@@ -1405,8 +1405,9 @@ svg { display: block; }
 .body-seam { fill: none; stroke: var(--body-base); stroke-width: 1.6; stroke-linecap: round; pointer-events: none; }
 .mz { stroke: var(--body-base); stroke-width: 1.4; stroke-linejoin: round; cursor: pointer; transition: fill 0.4s ease, opacity 0.2s; }
 .mz.sel { stroke: var(--label); stroke-width: 1.8; }
-.body-legend { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.706rem; color: var(--label2); margin-top: 10px; }
-.body-legend i { width: 90px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, var(--body-muscle), color-mix(in srgb, var(--tint) 50%, var(--body-muscle)), var(--tint)); }
+.body-legend { width: min(240px, 80%); margin: 12px auto 0; font-size: 0.706rem; color: var(--label2); font-variant-numeric: tabular-nums; }
+.body-legend i { display: block; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--body-muscle) 0%, color-mix(in srgb, var(--tint) 30%, var(--body-muscle)) 4%, var(--tint) 50%, var(--body-high) 100%); }
+.body-ticks { display: flex; justify-content: space-between; margin-top: 5px; }
 .body-read { text-align: center; padding: 14px 8px 2px; }
 .body-read .k { font-size: 0.765rem; text-transform: uppercase; letter-spacing: 0.02em; color: var(--label2); }
 .body-read .v { font-size: 1.412rem; font-weight: 700; letter-spacing: -0.02em; margin-top: 1px; }
