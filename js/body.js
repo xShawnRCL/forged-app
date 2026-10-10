@@ -35,38 +35,47 @@ function muscleVolume(days) {
   return { vol, from, cardio };
 }
 
-// Shapes are drawn for the left side of the figure and mirrored for the right.
+// Anatomical figure, drawn as the left half (viewer's left) and mirrored.
+// viewBox units: the body is ~430 tall, centred on x = 100.
+const BODY_SILHOUETTE = `M100 8C86 8 78 20 78 34C78 46 83 56 90 60L90 70C82 76 66 80 56 86C46 90 41 100 41 114
+  C40 128 38 148 37 168C36 182 35 192 34 200C32 220 29 240 28 258C26 266 24 274 24 282C24 292 28 300 33 302
+  C38 303 41 297 42 290C46 287 48 281 46.5 276C45 272 44 268 44 264C46 246 50 226 53 206C55 196 56 186 57 176C58 160 59 146 61 132
+  C62 150 64 172 66 196C67 212 64 228 63 244C62 270 63 300 68 330C70 342 70 352 69 362C66 380 66 396 72 412
+  C74 420 74 426 72 430C70 436 76 440 84 440C92 440 95 436 94 430C93 422 93 414 94 404C96 388 96 372 94 360
+  C93 350 94 342 95 334C97 310 99 285 100 266Z`;
+
 const BODY_FRONT = {
-  base: `<ellipse cx="60" cy="18" rx="11" ry="13"/><path d="M54 29h12v10H54z"/>
-    <path d="M42 106Q60 115 78 106L77 123Q60 129 43 123Z"/>`,
-  baseL: `<circle cx="27" cy="114" r="4.5"/><ellipse cx="50.5" cy="176" rx="5" ry="4"/><ellipse cx="50" cy="227" rx="5.5" ry="4"/>`,
-  center: [['traps', 'M47 41Q54 36 60 37Q66 36 73 41L68 45H52Z'], ['abs', 'M52 74Q52 69 57 69H63Q68 69 68 74V104Q68 110 60 111Q52 110 52 104Z']],
-  left: [
-    ['shoulders', 'M40 41Q48 41 49 49Q47 58 40 59Q31 58 31 50Q32 42 40 41Z'],
-    ['chest', 'M59 45V66Q50 71 43 65Q40 55 46 47Q52 43 59 45Z'],
-    ['obliques', 'M43 68Q48 70 50 73V106Q45 104 42 98Q40 83 43 68Z'],
-    ['biceps', 'M33 58Q39 59 39 66L38 78Q36 84 32 82Q28 78 28 70Q28 60 33 58Z'],
-    ['forearms', 'M30 84Q35 85 34 92L32 108Q29 112 26 108Q24 98 25 90Q26 84 30 84Z'],
-    ['quads', 'M43 124Q52 122 57 128L56 168Q50 176 45 170Q40 150 43 124Z'],
-    ['adductors', 'M56 127H59.5V149Q56.5 145 56 136Z'],
-    ['calves', 'M45 182Q51 178 55 182L54 214Q50 222 47 214Q44 198 45 182Z'],
+  muscles: [
+    ['traps', 'M90 72C84 78 74 82 62 86C74 91 86 93 94 92C92 86 91 78 90 72Z'],
+    ['shoulders', 'M64 86C54 86 44 94 42 108C41 120 43 132 47 140C51 134 56 128 61 122C61 112 63 100 66 92C66 89 65 87 64 86Z'],
+    ['chest', 'M99 100C88 96 75 98 67 105C63 111 61.5 121 63.5 130C67 138 78 143 90 141C94 140 97 138 99 136Z'],
+    ['biceps', 'M47 141C52 135 58.5 135 60 141C61 154 59.5 168 56.5 180C52.5 186 45 184 43 174C41.5 162 42 150 47 141Z'],
+    ['forearms', 'M37 206C42 200 52 200 55 206C53 222 49 238 44 252C40 256 33 254 31 248C30 234 32 218 37 206Z'],
+    ['obliques', 'M66 143C72 145 80 149 83 155L84 224C78 222 72 218 69 210C67 192 66 167 66 143Z'],
+    ['abs', 'M99 142V238C93 240 88 236 86.5 228L85.5 153C85.5 146 90 142 99 142Z'],
+    ['quads', 'M65.5 250C73 254 81 262 88 274C90 293 89.5 313 87 330C81 337 74.5 336 70.5 330C66.5 312 64.5 282 65.5 250Z'],
+    ['adductors', 'M90.5 268C94 264.5 99 266 99 271V296C98.5 308 96.5 316 93.5 322C91 310 89.8 296 89.8 284C89.8 278 90 272 90.5 268Z'],
+    ['calves', 'M71 366C76 362 84 364 86 370C86 386 83 400 79 410C75 410 71 400 70 388C69 380 69 372 71 366Z'],
   ],
+  // Gaps between ab segments, collarbones, kneecaps — quiet anatomical detail.
+  seams: 'M86 166H114M86 189H114M86 212H114M100 142V238',
+  detail: 'M92 62C94 72 96 81 98.5 89M74 87C82 91 90 92 98 90M70 238C77 249 86 257 95 263M77 349C81 353 87 353 91 349',
 };
 const BODY_BACK = {
-  base: `<ellipse cx="60" cy="18" rx="11" ry="13"/><path d="M54 29h12v10H54z"/>`,
-  baseL: `<circle cx="27" cy="114" r="4.5"/><ellipse cx="50.5" cy="176" rx="5" ry="4"/><ellipse cx="50" cy="227" rx="5.5" ry="4"/>`,
-  center: [['lower-back', 'M53 92Q60 88 67 92V106Q60 110 53 106Z']],
-  left: [
-    ['upper-back', 'M52 47L59 63L58 76Q49 74 45 62Q46 52 52 47Z'],
-    ['lats', 'M44 63Q48 75 57 78L56 99Q48 97 44 89Q41 75 44 63Z'],
-    ['shoulders', 'M40 41Q48 41 49 49Q47 58 40 59Q31 58 31 50Q32 42 40 41Z'],
-    ['triceps', 'M33 58Q39 59 39 66L38 78Q36 84 32 82Q28 78 28 70Q28 60 33 58Z'],
-    ['forearms', 'M30 84Q35 85 34 92L32 108Q29 112 26 108Q24 98 25 90Q26 84 30 84Z'],
-    ['glutes', 'M51 108Q59 108 59.5 116Q59.5 127 51 128Q42 127 42 118Q43 109 51 108Z'],
-    ['hamstrings', 'M43 130Q51 127 58 131L57 166Q51 174 46 168Q41 150 43 130Z'],
-    ['calves', 'M45 180Q51 176 56 181L55 206Q50 220 46 208Q43 194 45 180Z'],
+  muscles: [
+    ['lats', 'M66 130C74 132 86 136 96 146L97 197C90 201 80 206 70 212C67 196 65 160 66 130Z'],
+    ['upper-back', 'M64 100C72 98 82 102 90 112L94 130C86 130 76 128 68 124C64 118 63 108 64 100Z'],
+    ['traps', 'M100 66C96 72 88 80 64 88C76 94 86 104 92 118C95 128 97 140 100 152Z'],
+    ['shoulders', 'M64 86C54 86 44 94 42 108C41 120 43 132 47 140C51 134 56 128 61 122C61 112 63 100 66 92C66 89 65 87 64 86Z'],
+    ['triceps', 'M47 141C52 135 58.5 135 60 141C61 154 59.5 168 56.5 180C52.5 186 45 184 43 174C41.5 162 42 150 47 141Z'],
+    ['forearms', 'M37 206C42 200 52 200 55 206C53 222 49 238 44 252C40 256 33 254 31 248C30 234 32 218 37 206Z'],
+    ['lower-back', 'M86 200C91 196 98 197 98.5 202V238C92 240 84 237 77 231C76.5 219 80 207 86 200Z'],
+    ['glutes', 'M65 238C72 231 88 233 99 241V272C90 282 74 282 66 272C63 262 63 248 65 238Z'],
+    ['hamstrings', 'M67 284C75 290 86 290 95 286C95 304 93 320 89 334C83 340 75 338 71 330C67 314 66 300 67 284Z'],
+    ['calves', 'M71 362C77 356 90 358 94 366C94 382 90 396 84 402C78 404 72 398 70 388C68 378 69 368 71 362Z'],
   ],
-  centerTop: [['traps', 'M60 34L73 43L66 49L60 66L54 49L47 43Z']],
+  seams: 'M100 66V272',
+  detail: 'M92 62C93 66 95 69 97 70M78 352C83 349 89 349 93 352',
 };
 
 function muscleFill(v, target) {
@@ -77,13 +86,11 @@ function muscleFill(v, target) {
 
 function bodySVG(view, vol, target, label) {
   const mz = (m, d) => `<path class="mz${bodySelected === m ? ' sel' : ''}" data-m="${m}" d="${d}" style="fill:${muscleFill(vol[m], target)}"><title>${MUSCLES[m]}</title></path>`;
-  const left = view.left.map(([m, d]) => mz(m, d)).join('');
+  const half = `<path class="body-base" d="${BODY_SILHOUETTE}"/><path class="body-detail" d="${view.detail}"/>${view.muscles.map(([m, d]) => mz(m, d)).join('')}`;
   return `<figure class="body-fig">
-    <svg viewBox="16 0 88 236" role="img" aria-label="${label} muscle map">
-      <g class="body-base">${view.base}${view.baseL}<g transform="translate(120 0) scale(-1 1)">${view.baseL}</g></g>
-      ${view.center.map(([m, d]) => mz(m, d)).join('')}
-      ${left}<g transform="translate(120 0) scale(-1 1)">${left}</g>
-      ${(view.centerTop || []).map(([m, d]) => mz(m, d)).join('')}
+    <svg viewBox="18 4 164 440" role="img" aria-label="${label} muscle map">
+      ${half}<g transform="translate(200 0) scale(-1 1)">${half}</g>
+      <path class="body-seam" d="${view.seams}"/>
     </svg>
     <figcaption>${label}</figcaption>
   </figure>`;
