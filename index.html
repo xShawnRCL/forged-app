@@ -21,7 +21,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
-<link rel="stylesheet" href="css/app.css?v=2.1.2">
+<link rel="stylesheet" href="css/app.css?v=2.2.0">
 </head>
 <body>
 
@@ -176,6 +176,21 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
     </div>
   </main>
 
+  <div class="tab-edge" aria-hidden="true"></div>
+
+  <!-- ═══ REST TIMER (floats above the tab bar) ═══ -->
+  <div class="rest-pill" id="rest-timer-bar" aria-live="polite">
+    <div class="rest-ring">
+      <svg viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="19"/><circle class="fill" id="rest-ring-fg" cx="22" cy="22" r="19"/></svg>
+    </div>
+    <div class="rest-body">
+      <div class="rest-time" id="rest-timer-num">1:30</div>
+      <div class="rest-label" id="rest-timer-label">Rest</div>
+    </div>
+    <button class="rest-btn" onclick="addRestTime(30)">+30s</button>
+    <button class="rest-btn primary" onclick="skipRest()">Skip</button>
+  </div>
+
   <!-- ═══ TAB BAR ═══ -->
   <nav class="tabbar" role="tablist">
     <div class="tab-indicator" id="tab-indicator"></div>
@@ -194,18 +209,7 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   </nav>
 </div>
 
-<!-- ═══ REST TIMER (floats above the tab bar) ═══ -->
-<div class="rest-pill" id="rest-timer-bar" aria-live="polite">
-  <div class="rest-ring">
-    <svg viewBox="0 0 44 44"><circle class="track" cx="22" cy="22" r="19"/><circle class="fill" id="rest-ring-fg" cx="22" cy="22" r="19"/></svg>
-  </div>
-  <div class="rest-body">
-    <div class="rest-time" id="rest-timer-num">1:30</div>
-    <div class="rest-label" id="rest-timer-label">Rest</div>
-  </div>
-  <button class="rest-btn" onclick="addRestTime(30)">+30s</button>
-  <button class="rest-btn primary" onclick="skipRest()">Skip</button>
-</div>
+
 
 <!-- ═══ HUD / TOAST ═══ -->
 <div class="hud" id="toast" role="status"><span class="hud-icon" id="toast-icon"></span><span class="hud-text" id="toast-text"></span><button class="hud-action" id="toast-action" hidden>Undo</button></div>
@@ -586,9 +590,9 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   </section>
 </div>
 
-<script src="js/motion.js?v=2.1.2"></script>
-<script src="js/data.js?v=2.1.2"></script>
-<script src="js/body.js?v=2.1.2"></script>
-<script src="js/app.js?v=2.1.2"></script>
+<script src="js/motion.js?v=2.2.0"></script>
+<script src="js/data.js?v=2.2.0"></script>
+<script src="js/body.js?v=2.2.0"></script>
+<script src="js/app.js?v=2.2.0"></script>
 </body>
 </html>
