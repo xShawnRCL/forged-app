@@ -275,6 +275,7 @@ function showScreen(name) {
     return;
   }
   closeOpenSwipe();
+  setTabMinimized(false);
   if (name === 'today') renderToday();
   if (name === 'history') renderHistory();
   if (name === 'plans') renderPlans();
@@ -309,15 +310,55 @@ function updateNavbar(sc) {
   const tb = titleRow.querySelector('.title-block');
   if (tb) tb.style.transform = st < 0 ? `scale(${1 + Math.min(-st / 600, 0.08)})` : '';
 }
+// Tab bar minimizes while scrolling down and returns when scrolling up, at
+// the top, or when tapped — like iOS 26. Driven by a spring on --tbm.
+const tabMin = { on: false };
+tabMin.spring = new Spring({ onUpdate: v => document.documentElement.style.setProperty('--tbm', clamp(v, 0, 1.04).toFixed(4)) });
+function setTabMinimized(on) {
+  if (tabMin.on === on) return;
+  tabMin.on = on;
+  document.querySelector('.tabbar').classList.toggle('minimized', on);
+  tabMin.spring.to(on ? 1 : 0, { damping: on ? 1 : 0.82, response: 0.42 });
+}
 function bindScrollEffects() {
   document.querySelectorAll('.screen').forEach(sc => {
-    let ticking = false;
+    let ticking = false, last = 0, travel = 0;
     sc.addEventListener('scroll', () => {
       if (ticking) return;
       ticking = true;
-      requestAnimationFrame(() => { ticking = false; updateNavbar(sc); });
+      requestAnimationFrame(() => {
+        ticking = false;
+        updateNavbar(sc);
+        const st = sc.scrollTop, dy = st - last;
+        last = st;
+        // Accumulate travel in one direction so small jitters don't flip it.
+        travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
+        const atBottom = st + sc.clientHeight >= sc.scrollHeight - 2;
+        if (st < 40) setTabMinimized(false);
+        else if (travel > 24 && !atBottom) setTabMinimized(true);
+        else if (travel < -24) setTabMinimized(false);
+      });
     }, { passive: true });
   });
+  // Tapping the minimized pill expands it instead of switching tabs.
+  document.querySelector('.tabbar').addEventListener('click', e => {
+    if (!tabMin.on) return;
+    e.stopPropagation();
+    e.preventDefault();
+    setTabMinimized(false);
+    haptic(5);
+  }, true);
+}
+
+// iOS home-screen apps with a translucent status bar can report a viewport
+// shorter than the screen, which leaves a gap at the bottom. Use the real
+// screen height there instead.
+function fitAppHeight() {
+  const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  const portrait = window.innerHeight >= window.innerWidth;
+  const h = standalone && portrait ? Math.max(window.innerHeight, screen.height) : 0;
+  if (h) document.documentElement.style.setProperty('--app-h', h + 'px');
+  else document.documentElement.style.removeProperty('--app-h');
 }
 
 function updateInitials() {
@@ -1213,7 +1254,7 @@ function paintRestPill() {
   const el = $('rest-timer-bar');
   const p = clamp(rest.presence.value, 0, 1.2);
   const y = (1 - p) * 30 + rest.drag;
-  el.style.transform = `translate3d(-50%,${y}px,0) scale(${0.92 + 0.08 * Math.min(p, 1)})`;
+  el.style.transform = `translate3d(0,${y}px,0) scale(${0.92 + 0.08 * Math.min(p, 1)})`;
   el.style.opacity = clamp(p, 0, 1) * (1 - clamp(rest.drag / 120, 0, 1) * 0.7);
   el.style.filter = p < 0.98 ? `blur(${(1 - clamp(p, 0, 1)) * 8}px)` : '';
 }
@@ -2612,6 +2653,8 @@ function renderAll() {
 
 document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('touchstart', () => {}, { passive: true }); // enables :active on iOS
+  fitAppHeight();
+  window.addEventListener('resize', fitAppHeight);
   load();
   applyTheme(currentThemePref());
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeColor);
