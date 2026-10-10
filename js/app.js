@@ -350,15 +350,18 @@ function bindScrollEffects() {
   }, true);
 }
 
-// iOS home-screen apps with a translucent status bar can report a viewport
-// shorter than the screen, which leaves a gap at the bottom. Use the real
-// screen height there instead.
+// Some iOS versions stop drawing a home-screen web app short of the screen
+// bottom, leaving a black strip below it. The app can't paint there, so keep
+// it inside the drawn area and, when the strip exists, drop the home-indicator
+// spacing so the tab bar sits just above it rather than floating high.
 function fitAppHeight() {
+  const root = document.documentElement.style;
+  root.removeProperty('--app-h');
   const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   const portrait = window.innerHeight >= window.innerWidth;
-  const h = standalone && portrait ? Math.max(window.innerHeight, screen.height) : 0;
-  if (h) document.documentElement.style.setProperty('--app-h', h + 'px');
-  else document.documentElement.style.removeProperty('--app-h');
+  const gap = standalone && portrait ? screen.height - window.innerHeight : 0;
+  if (gap > 20) root.setProperty('--tab-bottom', '10px');
+  else root.removeProperty('--tab-bottom');
 }
 
 function updateInitials() {
