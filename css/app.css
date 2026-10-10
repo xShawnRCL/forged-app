@@ -1450,3 +1450,40 @@ svg { display: block; }
 .body-cardio svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 .sets { margin-top: 14px; }
 #summary-body .tiles.three .tile-value { font-size: 1.059rem; }
+
+/* ── v2.2: low-friction logging ─────────────────────────────────────────── */
+.set-chip { -webkit-touch-callout: none; }
+/* The set you're on next: a quiet tint ring, no animation loop. */
+.set-chip.next:not(.on) { box-shadow: inset 0 0 0 1.5px var(--tint); }
+.set-chip.next:not(.on) b { color: var(--tint); box-shadow: inset 0 0 0 1.5px var(--tint); }
+.set-chip.pressing { transform: scale(0.94); transition: transform 0.42s var(--ease-out); }
+.set-chip.editing { box-shadow: inset 0 0 0 2px var(--label); }
+
+/* Quick set editor, inline in the row */
+.qe { margin-top: 10px; padding: 12px; border-radius: 14px; background: var(--fill2); cursor: default; }
+.qe-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-size: 0.882rem; font-weight: 600; }
+.qe-head span { font-size: 0.706rem; font-weight: 400; color: var(--label2); }
+.qe-fields { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 10px; }
+.qe-fields label { display: flex; align-items: center; gap: 6px; font-size: 0.765rem; color: var(--label2); }
+.qe-nf { width: 132px; }
+.qe-nf .set-input { height: 40px; font-size: 1.059rem; }
+.qe-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+
+/* "How did it feel?" after the last set */
+.feel-ask { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-top: 10px; font-size: 0.824rem; color: var(--label2); animation: fadein 0.25s ease both; }
+.feel-opts { display: flex; gap: 6px; }
+.feel-opt { height: 30px; padding: 0 12px; border-radius: 15px; background: var(--fill); font-size: 0.824rem; font-weight: 600; transition: background-color 0.2s, color 0.2s, transform 0.12s ease-out; }
+.feel-opt[aria-pressed="true"] { background: var(--tint); color: var(--on-tint); }
+.feel-opt:active { transform: scale(0.94); }
+
+/* Sheet: per-set done toggles */
+.set-tog { width: 30px; height: 30px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; font-size: 0.824rem; font-weight: 600; color: var(--label2); box-shadow: inset 0 0 0 1.5px var(--label3); font-variant-numeric: tabular-nums; transition: background-color 0.2s, box-shadow 0.2s; }
+.set-tog.on { background: var(--tint); box-shadow: none; }
+.set-tog svg { width: 15px; height: 15px; stroke: var(--on-tint); stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.text-btn.small { font-size: 0.882rem; text-transform: none; letter-spacing: 0; }
+.sets-caption { align-items: center; }
+
+/* Quieter start control */
+.wk-idle { display: flex; align-items: center; gap: 10px; }
+.wk-idle .pill svg { width: 12px; height: 12px; }
+.wk-idle span { font-size: 0.824rem; color: var(--label2); }

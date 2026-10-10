@@ -432,7 +432,7 @@ function renderToday() {
   } else motto.innerHTML = '<button class="text-btn" onclick="setViewDate(null)">Back to Today</button>';
 
   const c = $('today-content');
-  let h = today ? backupNudgeHTML() : '';
+  let h = '';
   if (m.plan) {
     h += `<section class="card summary">
       <div class="ring" role="img" aria-label="Workout progress"><svg viewBox="0 0 84 84"><circle class="track" cx="42" cy="42" r="37"/><circle class="fill" id="ring-fill" cx="42" cy="42" r="37" stroke-dasharray="${RING_C.toFixed(1)}" stroke-dashoffset="${RING_C.toFixed(1)}"/></svg><div class="ring-label" id="ring-label"></div></div>
@@ -463,9 +463,10 @@ function renderToday() {
   });
   h += `<button class="row add-row nav-row" data-action="add">${I.plus}<span class="row-main"><span class="row-title">Add Exercise</span></span></button>`;
   h += '</div>';
-  if (m.total) h += '<p class="list-footer">Tap a set to check it off. Tap an exercise to edit it, or swipe left to swap or remove it.</p>';
+  if (m.total) h += '<p class="list-footer">Tap a set to log it. Press and hold a set to change it. Swipe left to swap or remove.</p>';
   else if (m.pid === 'active') h += '<p class="list-footer">Anything you log today keeps your streak going.</p>';
 
+  if (today) h += backupNudgeHTML();
   h += '<div id="today-stretches"></div>';
   h += `<h2 class="section-title">Notes</h2><div class="list"><textarea class="note-area" id="day-note-input" rows="1" placeholder="${today ? 'How are you feeling today?' : 'Notes for this day'}">${esc((S.dayNotes || {})[curDK] || '')}</textarea></div>`;
   if (today) h += renderUpcomingHTML();
@@ -487,6 +488,7 @@ function renderToday() {
   ringSpring.onUpdate(ringSpring.value);
   updateTodaySummary();
   renderWorkoutCtl();
+  markNextUp();
 }
 
 function fmtNum(v) { return String(Math.round(v * 10) / 10); }
@@ -520,7 +522,8 @@ function setChipsHTML(id, ex, t, log, pop) {
   return `<div class="set-chips">${sets.map((st, i) => {
     const on = !!(log && log.sets[i] && isDone(log.sets[i]));
     const lbl = setLabel(ex, id, st);
-    return `<button class="set-chip${on ? ' on' : ''}${pop === i ? ' pop' : ''}" data-set="${id}" data-i="${i}" aria-pressed="${on}" aria-label="Set ${i + 1}, ${lbl}">${on ? I.check : `<b>${i + 1}</b>`}<span>${esc(lbl)}</span></button>`;
+    const editing = quickEdit && quickEdit.id === id && quickEdit.i === i;
+    return `<button class="set-chip${on ? ' on' : ''}${pop === i ? ' pop' : ''}${editing ? ' editing' : ''}" data-set="${id}" data-i="${i}" aria-pressed="${on}" aria-label="Set ${i + 1}, ${lbl}. Press and hold to change">${on ? I.check : `<b>${i + 1}</b>`}<span>${esc(lbl)}</span></button>`;
   }).join('')}${unit}</div>`;
 }
 
@@ -542,6 +545,8 @@ function exRowHTML(id, block, m, pop) {
         <div class="row-title">${esc(ex.name)}${tags}</div>
         <div class="row-sub">${sub}</div>
         ${setChipsHTML(id, ex, t, log, pop)}
+        ${quickEdit && quickEdit.id === id ? quickEditHTML(id, ex) : ''}
+        ${feelAsk === id && !quickEdit ? feelAskHTML(id) : ''}
       </div>
       <span class="row-chev" data-log="${id}">${I.chev}</span>
     </div>
@@ -592,11 +597,164 @@ function updateTodaySummary() {
   ringSpring.to(pct, { damping: 1, response: 0.5 });
 }
 
+// ── Quick set editor (press and hold a set, or first log of a new lift) ────
+let quickEdit = null, feelAsk = null;
+function setValues(id, i) {
+  const log = (S.logs[curDK] || {})[id];
+  if (log && log.sets[i]) return log.sets[i];
+  const planned = plannedSets(id, targetFor(id));
+  return planned[i] || planned[planned.length - 1] || {};
+}
+function openQuickEdit(id, i) {
+  const ex = allEx()[id], st = setValues(id, i);
+  const prev = quickEdit && quickEdit.id;
+  quickEdit = { id, i };
+  feelAsk = null;
+  closeOpenSwipe();
+  if (prev && prev !== id) refreshExRow(prev);
+  refreshExRow(id);
+  // New lift with no weight yet: go straight to the weight field.
+  const w = $('qe-w');
+  if (ex.type === 'weight' && !st.weight && w) setTimeout(() => w.focus(), 50);
+}
+function quickEditHTML(id, ex) {
+  const { i } = quickEdit;
+  const st = setValues(id, i), unit = getExUnit(id);
+  const isTime = ex.type === 'time';
+  const field = (key, val, step, label) => `<div class="nf qe-nf"><button class="nf-b" data-qd="${key}" data-d="-1" tabindex="-1" aria-label="Less ${label}">−</button><input class="set-input" id="qe-${key}" type="number" inputmode="decimal" value="${esc(val)}" data-step="${step}" min="0" aria-label="${label}" placeholder="0"><button class="nf-b" data-qd="${key}" data-d="1" tabindex="-1" aria-label="More ${label}">+</button></div>`;
+  const log = (S.logs[curDK] || {})[id];
+  const done = !!(log && log.sets[i] && isDone(log.sets[i]));
+  return `<div class="qe" data-qe>
+    <div class="qe-head">Set ${i + 1}${ex.type === 'weight' ? '<span>Later sets follow a new weight</span>' : ''}</div>
+    <div class="qe-fields">
+      ${ex.type === 'weight' ? `<label>${field('w', st.weight ? fmtNum(toUnit(st.weight, unit)) : '', unit === 'kg' ? 2.5 : 5, 'weight')}<span>${unit}</span></label>` : ''}
+      <label>${field('r', isTime ? (st.secs || '') : (st.reps || ''), isTime ? 5 : 1, isTime ? 'seconds' : 'reps')}<span>${isTime ? 'sec' : 'reps'}</span></label>
+    </div>
+    <div class="qe-actions">
+      <button class="pill" data-qe-cancel>Cancel</button>
+      <button class="pill filled" data-qe-save>${done ? 'Save' : 'Log Set'}</button>
+    </div>
+  </div>`;
+}
+function closeQuickEdit() { const id = quickEdit && quickEdit.id; quickEdit = null; if (id) refreshExRow(id); }
+
+// Make sure today's log exists for an exercise (pre-filled, nothing checked off).
+function ensureLog(id) {
+  const ex = allEx()[id];
+  if (!S.logs[curDK]) S.logs[curDK] = {};
+  if (!S.logs[curDK][id]) {
+    const planned = plannedSets(id, targetFor(id));
+    S.logs[curDK][id] = { sets: planned.map(st => ({ ...st, ...(ex.type === 'weight' ? { unit: getExUnit(id) } : {}), done: false })), feel: 'good' };
+  }
+  return S.logs[curDK][id];
+}
+
+function saveQuickEdit() {
+  const { id, i } = quickEdit;
+  const ex = allEx()[id], unit = getExUnit(id);
+  const log = ensureLog(id);
+  const st = log.sets[i];
+  const r = parseFloat(($('qe-r') || {}).value) || 0;
+  if (ex.type === 'time') st.secs = Math.round(r); else st.reps = Math.round(r);
+  if (ex.type === 'weight') {
+    const w = storeWeight(parseFloat(($('qe-w') || {}).value) || 0, unit);
+    if (!w) { $('qe-w').focus(); toast('Add a weight first'); return; }
+    const old = st.weight;
+    st.weight = w;
+    st.unit = unit;
+    // A new working weight carries to the sets you haven't done yet.
+    log.sets.forEach((x, j) => { if (j > i && !isDone(x) && (!x.weight || x.weight === old)) { x.weight = w; x.unit = unit; } });
+  }
+  const wasDone = isDone(st);
+  quickEdit = null;
+  if (wasDone) { recomputeRecords(); save(); afterExerciseChange(id); haptic(5); return; }
+  setDone(id, i, true);
+}
+
+// ── Set completion ─────────────────────────────────────────────────────────
+// Tap a set chip: check it off (or back on).
+function completeSet(id, i) {
+  const ex = allEx()[id];
+  if (!ex) return;
+  const st = setValues(id, i);
+  if (ex.type === 'weight' && !st.weight) { openQuickEdit(id, i); return; } // need a weight first
+  const log = ensureLog(id);
+  setDone(id, i, !isDone(log.sets[i]));
+}
+
+function setDone(id, i, on) {
+  const ex = allEx()[id], log = ensureLog(id), st = log.sets[i];
+  if (!st) return;
+  const before = S.records[id] ? { ...S.records[id] } : null;
+  st.done = on;
+  if (!S.checked[curDK]) S.checked[curDK] = {};
+  const finished = log.sets.every(isDone);
+  S.checked[curDK][id] = finished;
+  recomputeRecords();
+  updateStreak();
+  const pb = on && isImprovement(before, S.records[id], ex.type);
+  if (pb) sessionPBs.add(id);
+  if (on) touchWorkout();
+  // Finishing an exercise asks (optionally) how it felt — it steers suggestions.
+  feelAsk = on && finished ? id : (feelAsk === id ? null : feelAsk);
+  save();
+  afterExerciseChange(id, { pop: on ? i : undefined, completed: on && finished });
+  if (!on) return;
+  if (pb) { haptic([12, 50, 12]); toast('New personal best', { icon: I.trophy.replace('<svg', '<svg style="fill:currentColor"'), color: 'var(--gold)' }); }
+  else haptic(10);
+  if (isViewingToday()) startRestTimer(id, log.sets.filter(isDone).length, log.sets.length);
+}
+
+function feelAskHTML(id) {
+  const cur = ((S.logs[curDK] || {})[id] || {}).feel || 'good';
+  return `<div class="feel-ask"><span>How did it feel?</span><div class="feel-opts">${['easy', 'good', 'hard'].map(f =>
+    `<button class="feel-opt" data-feel="${f}" data-feel-id="${id}" aria-pressed="${f === cur}">${f[0].toUpperCase() + f.slice(1)}</button>`).join('')}</div></div>`;
+}
+function setFeelFor(id, f) {
+  const log = (S.logs[curDK] || {})[id];
+  if (log) log.feel = f;
+  feelAsk = null;
+  save();
+  haptic(5);
+  refreshExRow(id);
+}
+
+// ── Up next ────────────────────────────────────────────────────────────────
+function nextUp() {
+  if (!isViewingToday()) return null;
+  const m = todayModel(), ch = S.checked[curDK] || {}, logs = S.logs[curDK] || {};
+  for (const id of m.all) {
+    if (ch[id]) continue;
+    const log = logs[id];
+    if (!log) return { id, i: 0 };
+    const i = log.sets.findIndex(x => !isDone(x));
+    if (i >= 0) return { id, i };
+  }
+  return null;
+}
+function markNextUp() {
+  document.querySelectorAll('#workout-list .set-chip.next').forEach(c => c.classList.remove('next'));
+  const n = nextUp();
+  if (!n) return null;
+  const chip = [...document.querySelectorAll('#workout-list .set-chip')].find(c => c.dataset.set === n.id && +c.dataset.i === n.i);
+  if (chip) chip.classList.add('next');
+  return chip;
+}
+// After resting, bring the next set into view if it's off screen.
+function scrollToNextUp() {
+  if (curTab !== 'today' || Sheets.stack.length) return;
+  const chip = markNextUp();
+  if (!chip) return;
+  const sc = $('screen-today'), r = chip.getBoundingClientRect(), h = sc.clientHeight;
+  if (r.top < 110 || r.bottom > h - 150) sc.scrollTo({ top: sc.scrollTop + r.top - h * 0.38, behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+}
+
 function afterExerciseChange(id, opts = {}) {
   const m = todayModel();
   refreshExRow(id, opts.pop);
   updateTodaySummary();
   renderTodayStretches();
+  markNextUp();
   if (opts.completed && m.done === m.total && m.total > 1) toast('All exercises done', { icon: I.check.replace('<svg', '<svg style="stroke:currentColor;stroke-width:3;fill:none;stroke-linecap:round"') });
 }
 
@@ -609,41 +767,10 @@ function toggleCheck(id) {
   recomputeRecords();
   updateStreak();
   if (v) touchWorkout();
+  feelAsk = v && log ? id : null;
   save();
   if (v) haptic(10);
   afterExerciseChange(id, { completed: v });
-}
-
-// Tap a set chip: check it off (or back on), keep the exercise's checkmark in
-// sync, celebrate records, and start the rest timer.
-function completeSet(id, i) {
-  const ex = allEx()[id];
-  if (!ex) return;
-  if (!S.logs[curDK]) S.logs[curDK] = {};
-  let log = S.logs[curDK][id];
-  if (!log) {
-    const planned = plannedSets(id, targetFor(id));
-    if (ex.type === 'weight' && !planned.some(st => st.weight)) { openLogModal(id); return; } // need a weight first
-    log = S.logs[curDK][id] = { sets: planned.map(st => ({ ...st, ...(ex.type === 'weight' ? { unit: getExUnit(id) } : {}), done: false })), feel: 'good' };
-  }
-  const st = log.sets[i];
-  if (!st) return;
-  if (ex.type === 'weight' && !st.weight) { openLogModal(id); return; }
-  const before = S.records[id] ? { ...S.records[id] } : null;
-  st.done = !isDone(st);
-  if (!S.checked[curDK]) S.checked[curDK] = {};
-  S.checked[curDK][id] = log.sets.every(isDone);
-  recomputeRecords();
-  updateStreak();
-  const pb = st.done && isImprovement(before, S.records[id], ex.type);
-  if (pb) sessionPBs.add(id);
-  if (st.done) touchWorkout();
-  save();
-  afterExerciseChange(id, { pop: st.done ? i : undefined, completed: st.done && S.checked[curDK][id] });
-  if (!st.done) return;
-  if (pb) { haptic([12, 50, 12]); toast('New personal best', { icon: I.trophy.replace('<svg', '<svg style="fill:currentColor"'), color: 'var(--gold)' }); }
-  else haptic(10);
-  if (isViewingToday()) startRestTimer(id, log.sets.filter(isDone).length, log.sets.length);
 }
 
 function removeFromToday(id, extra, orig) {
@@ -741,7 +868,7 @@ function renderWorkoutCtl() {
     const st = sessionStats(curDK);
     el.innerHTML = `<button class="wk-done" onclick="openWorkoutSummary('${curDK}')">${I.check}<span>Done${st.minutes ? ' in ' + fmtMinutes(st.minutes) : ''}${st.volume ? ' · ' + fmtVol(st.volume) : ''}</span>${I.chev}</button>`;
   } else if (isViewingToday() && todayModel().total) {
-    el.innerHTML = `<button class="btn tint start-btn" onclick="startWorkout()"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" style="fill:currentColor;stroke:none"/></svg>Start Workout</button>`;
+    el.innerHTML = `<div class="wk-idle"><button class="pill" onclick="startWorkout()"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10-6.5z" style="fill:currentColor;stroke:none"/></svg>Start Timer</button><span>Starts on your first set</span></div>`;
   } else el.innerHTML = '';
 }
 
@@ -957,6 +1084,8 @@ function openLogModal(exId) {
 
   const existing = (S.logs[curDK] || {})[exId];
   logSetCount = existing && existing.sets.length ? existing.sets.length : t.sets;
+  // Which sets are already done — editing never silently completes the rest.
+  logDone = existing && existing.sets.length ? existing.sets.map(isDone) : [];
   logWarmupCount = existing && existing.warmups ? existing.warmups.length : 0;
   renderLogOptions(ex);
   renderWarmupGrid(ex, existing);
@@ -1006,6 +1135,7 @@ function setExUnit(unit) {
 }
 
 // Current typed values, so re-rendering (add set, unit change) never loses input.
+let logDone = [];
 function readSetInputs() {
   const out = [];
   for (let i = 0; i < logSetCount; i++) {
@@ -1024,9 +1154,11 @@ function renderSetRows(ex, existing, typed) {
   const isTime = ex.type === 'time', isWeight = ex.type === 'weight';
   const unit = isWeight ? getExUnit(logExId) : '';
   const cls = isWeight ? '' : ' two';
-  let h = '';
-  if (logWarmupCount > 0 && isWeight) h += '<div class="sets-caption">Working sets</div>';
-  h += `<div class="sets-head${cls}"><span>Set</span><span>${isTime ? 'Seconds' : 'Reps'}</span>${isWeight ? `<span>${unit}</span>` : ''}</div>`;
+  while (logDone.length < logSetCount) logDone.push(false);
+  logDone.length = logSetCount;
+  const all = logDone.every(Boolean);
+  let h = `<div class="sets-caption"><span>${logWarmupCount > 0 && isWeight ? 'Working sets' : 'Sets'}</span><button class="text-btn small" data-alldone>${all ? 'Clear All' : 'Mark All Done'}</button></div>`;
+  h += `<div class="sets-head${cls}"><span>Done</span><span>${isTime ? 'Seconds' : 'Reps'}</span>${isWeight ? `<span>${unit}</span>` : ''}</div>`;
   for (let i = 0; i < logSetCount; i++) {
     const src = existing && existing.sets ? existing.sets : [];
     const pset = src[i] || src[src.length - 1] || {};
@@ -1034,7 +1166,7 @@ function renderSetRows(ex, existing, typed) {
     let w = pset.weight ? fmtNum(toUnit(pset.weight, unit)) : '';
     if (typed && typed[i]) { r = typed[i].r; w = typed[i].w; }
     else if (typed && i > 0 && typed[i - 1]) { r = typed[i - 1].r; w = typed[i - 1].w; } // new set copies the one above
-    h += `<div class="set-row${cls}"><span class="set-num">${i + 1}</span>
+    h += `<div class="set-row${cls}"><button class="set-tog${logDone[i] ? ' on' : ''}" data-tog="${i}" aria-pressed="${logDone[i]}" aria-label="Set ${i + 1} done">${logDone[i] ? I.check : i + 1}</button>
       ${numField('si-r-' + i, r, isTime ? 5 : 1, `set ${i + 1} ${isTime ? 'seconds' : 'reps'}`)}
       ${isWeight ? numField('si-w-' + i, w, unit === 'kg' ? 2.5 : 5, `set ${i + 1} weight`) : ''}
     </div>`;
@@ -1045,6 +1177,7 @@ function renderSetRows(ex, existing, typed) {
 function addSetRow() {
   const typed = readSetInputs();
   logSetCount++;
+  logDone.push(false);
   typed.push(typed[typed.length - 1] || null);
   renderSetRows(allEx()[logExId], null, typed);
   haptic();
@@ -1086,16 +1219,71 @@ function renderWarmupGrid(ex, existing) {
   grid.innerHTML = h;
 }
 
+// Press and hold a set chip to edit just that set.
+let longPressAt = 0;
+function bindSetLongPress() {
+  const root = $('today-content');
+  let timer = 0, sx = 0, sy = 0;
+  const cancel = () => { clearTimeout(timer); timer = 0; };
+  root.addEventListener('pointerdown', e => {
+    const chip = e.target.closest('[data-set]');
+    if (!chip) return;
+    sx = e.clientX; sy = e.clientY;
+    chip.classList.add('pressing');
+    timer = setTimeout(() => {
+      timer = 0;
+      longPressAt = performance.now();
+      chip.classList.remove('pressing');
+      haptic(15);
+      openQuickEdit(chip.dataset.set, +chip.dataset.i);
+    }, 420);
+  });
+  root.addEventListener('pointermove', e => { if (timer && Math.hypot(e.clientX - sx, e.clientY - sy) > 10) { cancel(); root.querySelectorAll('.pressing').forEach(c => c.classList.remove('pressing')); } });
+  ['pointerup', 'pointercancel', 'pointerleave'].forEach(t => root.addEventListener(t, () => { cancel(); root.querySelectorAll('.pressing').forEach(c => c.classList.remove('pressing')); }));
+  root.addEventListener('contextmenu', e => { if (e.target.closest('[data-set]')) e.preventDefault(); });
+}
+
+// A new weight on one set carries down to later sets you haven't done yet
+// (unless you'd already set those to something different).
+function propagateWeight(input, prev) {
+  const m = /^si-w-(\d+)$/.exec(input.id);
+  if (!m) return;
+  for (let j = +m[1] + 1; j < logSetCount; j++) {
+    const w = $('si-w-' + j);
+    if (w && !logDone[j] && (w.value === prev || w.value === '')) w.value = input.value;
+  }
+}
 function bindStepperFields() {
   ['sets-grid', 'warmup-grid'].forEach(id => $(id).addEventListener('click', e => {
+    const tog = e.target.closest('[data-tog]');
+    if (tog) {
+      const i = +tog.dataset.tog;
+      logDone[i] = !logDone[i];
+      renderSetRows(allEx()[logExId], null, readSetInputs());
+      haptic(5); return;
+    }
+    if (e.target.closest('[data-alldone]')) {
+      const v = !logDone.every(Boolean);
+      logDone = logDone.map(() => v);
+      renderSetRows(allEx()[logExId], null, readSetInputs());
+      haptic(10); return;
+    }
     const b = e.target.closest('.nf-b');
     if (!b) return;
     const input = b.parentNode.querySelector('input');
     const step = parseFloat(input.dataset.step) || 1;
-    const v = Math.max(0, Math.round(((parseFloat(input.value) || 0) + step * +b.dataset.d) * 100) / 100);
-    input.value = v;
+    const prev = input.value;
+    input.value = Math.max(0, Math.round(((parseFloat(input.value) || 0) + step * +b.dataset.d) * 100) / 100);
+    propagateWeight(input, prev);
     haptic(5);
   }));
+  const grid = $('sets-grid');
+  grid.addEventListener('focusin', e => { if (e.target.matches('input')) e.target.dataset.prev = e.target.value; });
+  grid.addEventListener('input', e => {
+    if (!e.target.matches('input')) return;
+    propagateWeight(e.target, e.target.dataset.prev);
+    e.target.dataset.prev = e.target.value;
+  });
 }
 
 function applyProgression(exId) {
@@ -1134,10 +1322,12 @@ function saveLog() {
     const r = $('si-r-' + i), rv = parseInt(r ? r.value : 0) || 0;
     if (isWeight) {
       const w = $('si-w-' + i), wv = storeWeight(parseFloat(w ? w.value : 0) || 0, unit);
-      sets.push({ reps: rv, weight: wv, unit, done: rv > 0 });
-    } else if (isTime) sets.push({ secs: rv, done: rv > 0 });
-    else sets.push({ reps: rv, done: rv > 0 });
+      sets.push({ reps: rv, weight: wv, unit, done: !!logDone[i] && rv > 0 });
+    } else if (isTime) sets.push({ secs: rv, done: !!logDone[i] && rv > 0 });
+    else sets.push({ reps: rv, done: !!logDone[i] && rv > 0 });
   }
+  const prevDone = doneSets((S.logs[curDK] || {})[logExId]).length;
+  const nowDone = sets.filter(isDone).length;
   const note = $('lm-note').value.trim();
   const before = S.records[logExId] ? { ...S.records[logExId] } : null;
   if (!S.logs[curDK]) S.logs[curDK] = {};
@@ -1147,14 +1337,17 @@ function saveLog() {
   const isPB = isImprovement(before, S.records[logExId], ex.type);
   if (isPB) sessionPBs.add(logExId);
   if (!S.checked[curDK]) S.checked[curDK] = {};
-  S.checked[curDK][logExId] = sets.some(isDone);
-  touchWorkout();
+  const finished = sets.length > 0 && sets.every(isDone);
+  S.checked[curDK][logExId] = finished;
+  if (nowDone) touchWorkout();
+  if (feelAsk === logExId) feelAsk = null; // effort was set in the sheet
   updateStreak(); save();
   Sheets.close('log-modal');
-  afterExerciseChange(logExId, { completed: true });
+  afterExerciseChange(logExId, { completed: finished && nowDone > prevDone });
   if (isPB) { haptic([12, 50, 12]); toast('New personal best', { icon: I.trophy.replace('<svg', '<svg style="fill:currentColor"'), color: 'var(--gold)' }); }
   else haptic();
-  if (isViewingToday()) startRestTimer(logExId, 0, 0);
+  // Only rest if this save actually completed new sets.
+  if (isViewingToday() && nowDone > prevDone) startRestTimer(logExId, nowDone, sets.length);
 }
 
 // ═══ EXERCISE PICKER ═══════════════════════════════════════════════════════
@@ -1301,6 +1494,7 @@ function tickRest() {
   $('rest-timer-label').textContent = nextSet ? `Set ${nextSet} — start now` : 'Time for your next set';
   playRestDoneSound();
   haptic([100, 50, 100]);
+  scrollToNextUp();
   setTimeout(() => { if (rest.finished) hideRestTimer(); }, 6000);
 }
 
@@ -1325,7 +1519,7 @@ function addRestTime(secs) {
   haptic();
   tickRest();
 }
-function skipRest() { hideRestTimer(); }
+function skipRest() { hideRestTimer(); scrollToNextUp(); }
 function hideRestTimer(velocity) {
   clearInterval(rest.interval);
   rest.finished = false;
@@ -2673,9 +2867,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('sw.js').catch(() => {});
 
+  bindSetLongPress();
   $('today-content').addEventListener('click', e => {
+    // Swallow only the click that ends a long press on a set chip.
+    if (performance.now() - longPressAt < 700 && e.target.closest('[data-set]')) { longPressAt = 0; e.preventDefault(); return; }
+    const qd = e.target.closest('[data-qd]');
+    if (qd) {
+      const input = $('qe-' + qd.dataset.qd);
+      const step = parseFloat(input.dataset.step) || 1;
+      input.value = Math.max(0, Math.round(((parseFloat(input.value) || 0) + step * +qd.dataset.d) * 100) / 100);
+      haptic(5); return;
+    }
+    if (e.target.closest('[data-qe-save]')) { saveQuickEdit(); return; }
+    if (e.target.closest('[data-qe-cancel]')) { closeQuickEdit(); return; }
+    if (e.target.closest('[data-qe]')) return; // taps inside the editor stay there
+    const fl = e.target.closest('[data-feel]');
+    if (fl) { setFeelFor(fl.dataset.feelId, fl.dataset.feel); return; }
     const st = e.target.closest('[data-set]');
-    if (st) { completeSet(st.dataset.set, +st.dataset.i); return; }
+    if (st) {
+      if (quickEdit && quickEdit.id === st.dataset.set) { openQuickEdit(st.dataset.set, +st.dataset.i); return; }
+      completeSet(st.dataset.set, +st.dataset.i); return;
+    }
     const c = e.target.closest('[data-check]');
     if (c) { toggleCheck(c.dataset.check); return; }
     const l = e.target.closest('[data-log]');
