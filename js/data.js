@@ -163,3 +163,133 @@ const DEFAULT_WEEK={1:'plan-mon',2:'plan-tue',3:'plan-wed',4:'rest',5:'plan-fri'
 const DAYS_L=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const DAYS_S=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const MUSCLE_LABELS={legs:'Legs',back:'Back & Core',chest:'Chest',shoulders:'Shoulders',arms:'Arms',cardio:'Cardio',balance:'Balance',full:'Full Body'};
+
+// ── Muscles worked ─────────────────────────────────────────────────────────
+// Fine-grained muscles for the body map. p = primary (1 set), s = secondary (½).
+const MUSCLES = {
+  chest:'Chest', shoulders:'Shoulders', biceps:'Biceps', triceps:'Triceps', forearms:'Forearms',
+  abs:'Abs', obliques:'Obliques', traps:'Traps', lats:'Lats', 'upper-back':'Upper Back', 'lower-back':'Lower Back',
+  glutes:'Glutes', quads:'Quads', hamstrings:'Hamstrings', adductors:'Adductors', calves:'Calves',
+};
+const EX_MUSCLES = {
+  'squat':{p:['quads','glutes'],s:['hamstrings','adductors']}, 'step-up':{p:['quads','glutes'],s:['hamstrings','calves']},
+  'wall-sit':{p:['quads'],s:['glutes']}, 'calf-raise':{p:['calves']}, 'glute-bridge':{p:['glutes'],s:['hamstrings','lower-back']},
+  'bird-dog':{p:['lower-back','abs'],s:['glutes','shoulders']}, 'dead-bug':{p:['abs'],s:['obliques']},
+  'band-row':{p:['upper-back','lats'],s:['biceps','shoulders']}, 'single-leg':{p:['glutes','calves'],s:['abs']},
+  'heel-toe':{p:['calves'],s:['abs']}, 'cardio-walk':{cardio:true},
+  'push-up':{p:['chest','triceps'],s:['shoulders','abs']}, 'plank':{p:['abs'],s:['shoulders','obliques']},
+  'side-plank':{p:['obliques'],s:['abs','shoulders']}, 'lunge':{p:['quads','glutes'],s:['hamstrings','adductors']},
+  'leg-press':{p:['quads','glutes'],s:['hamstrings','adductors']}, 'leg-ext':{p:['quads']},
+  'leg-curl':{p:['hamstrings'],s:['calves']}, 'seated-leg-curl':{p:['hamstrings']},
+  'hack-squat':{p:['quads','glutes'],s:['adductors']}, 'smith-squat':{p:['quads','glutes'],s:['hamstrings']},
+  'rdl':{p:['hamstrings','glutes'],s:['lower-back','forearms']},
+  'deadlift':{p:['hamstrings','glutes','lower-back'],s:['traps','lats','forearms','quads']},
+  'sumo-deadlift':{p:['glutes','adductors','quads'],s:['hamstrings','lower-back','traps']},
+  'hip-abductor':{p:['glutes']}, 'hip-adductor':{p:['adductors']}, 'seated-calf':{p:['calves']},
+  'bb-squat':{p:['quads','glutes'],s:['adductors','hamstrings','lower-back']}, 'front-squat':{p:['quads'],s:['glutes','abs','upper-back']},
+  'split-squat':{p:['quads','glutes'],s:['hamstrings','adductors']}, 'walking-lunge':{p:['quads','glutes'],s:['hamstrings','calves']},
+  'hip-thrust':{p:['glutes'],s:['hamstrings']}, 'glute-kickback':{p:['glutes'],s:['hamstrings']}, 'lateral-band':{p:['glutes']},
+  'lat-pulldown':{p:['lats'],s:['biceps','upper-back']}, 'cable-row':{p:['upper-back','lats'],s:['biceps','shoulders']},
+  'tbar-row':{p:['upper-back','lats'],s:['biceps','lower-back']}, 'bb-row':{p:['upper-back','lats'],s:['biceps','lower-back','shoulders']},
+  'db-row':{p:['lats','upper-back'],s:['biceps']}, 'pullup':{p:['lats'],s:['biceps','upper-back','forearms']},
+  'assisted-pullup':{p:['lats'],s:['biceps','upper-back']}, 'hyperext':{p:['lower-back'],s:['glutes','hamstrings']},
+  'cable-pullthrough':{p:['glutes','hamstrings'],s:['lower-back']}, 'face-pull':{p:['shoulders','upper-back'],s:['traps']},
+  'russian-twist':{p:['obliques'],s:['abs']}, 'cable-crunch':{p:['abs']}, 'ab-machine':{p:['abs']},
+  'hanging-knee':{p:['abs'],s:['obliques','forearms']}, 'good-morning':{p:['hamstrings','lower-back'],s:['glutes']},
+  'seated-row-machine':{p:['upper-back','lats'],s:['biceps']},
+  'bench-flat':{p:['chest'],s:['triceps','shoulders']}, 'bench-incline':{p:['chest','shoulders'],s:['triceps']},
+  'bench-decline':{p:['chest'],s:['triceps']}, 'db-press-flat':{p:['chest'],s:['triceps','shoulders']},
+  'db-press-inc':{p:['chest','shoulders'],s:['triceps']}, 'db-fly':{p:['chest'],s:['shoulders']}, 'cable-fly':{p:['chest']},
+  'pec-deck':{p:['chest']}, 'chest-press-m':{p:['chest'],s:['triceps','shoulders']}, 'dips-chest':{p:['chest','triceps'],s:['shoulders']},
+  'ohp-bb':{p:['shoulders'],s:['triceps','traps','abs']}, 'ohp-db':{p:['shoulders'],s:['triceps']}, 'arnold-press':{p:['shoulders'],s:['triceps']},
+  'lat-raise':{p:['shoulders']}, 'lat-raise-cable':{p:['shoulders']}, 'front-raise':{p:['shoulders']},
+  'rear-delt-fly':{p:['shoulders'],s:['upper-back']}, 'rear-delt-machine':{p:['shoulders'],s:['upper-back']},
+  'upright-row':{p:['shoulders','traps'],s:['biceps']}, 'shrug':{p:['traps'],s:['forearms']}, 'shoulder-press-m':{p:['shoulders'],s:['triceps']},
+  'bb-curl':{p:['biceps'],s:['forearms']}, 'db-curl':{p:['biceps'],s:['forearms']}, 'hammer-curl':{p:['biceps','forearms']},
+  'preacher-curl':{p:['biceps']}, 'cable-curl':{p:['biceps'],s:['forearms']}, 'incline-curl':{p:['biceps']},
+  'concentration-curl':{p:['biceps']}, 'tricep-pushdown':{p:['triceps']}, 'skull-crusher':{p:['triceps']},
+  'ohp-tricep':{p:['triceps']}, 'close-bench':{p:['triceps','chest'],s:['shoulders']}, 'dips-tricep':{p:['triceps'],s:['chest','shoulders']},
+  'kickback':{p:['triceps']}, 'rope-pushdown':{p:['triceps']},
+  'treadmill':{cardio:true}, 'elliptical':{cardio:true}, 'rowing-machine':{cardio:true,s:['lats','upper-back']},
+  'stair-climber':{cardio:true,s:['glutes','calves']}, 'stationary-bike':{cardio:true,s:['quads']}, 'jump-rope':{cardio:true,s:['calves']},
+  'hiit':{cardio:true}, 'swim':{cardio:true,s:['lats','shoulders']}, 'cycling':{cardio:true,s:['quads']},
+  'foam-roll':{}, 'hip-circle-ex':{}, 'yoga-flow':{}, 'cat-cow-ex':{}, 'ankle-mob':{},
+};
+// Custom exercises fall back to their muscle group.
+const GROUP_MUSCLES = {
+  legs:{p:['quads','glutes'],s:['hamstrings']}, back:{p:['lats','upper-back'],s:['biceps']}, chest:{p:['chest'],s:['triceps']},
+  shoulders:{p:['shoulders']}, arms:{p:['biceps','triceps']}, cardio:{cardio:true}, balance:{}, full:{p:['quads','chest','lats']},
+};
+
+// ── Programs ───────────────────────────────────────────────────────────────
+// Templates. Using one copies its workouts into your own plans, so you can
+// rename, swap exercises and change sets/reps without touching the original.
+// targets: per-exercise sets × reps (val = seconds for timed exercises).
+const PROGRAMS = {
+  ppl: {
+    name:'Push / Pull / Legs', short:'PPL', level:'Intermediate', color:'fire', glyph:'ppl',
+    desc:'The classic muscle-building split. Each day trains one movement pattern, so every muscle gets hit hard with full recovery in between.',
+    workouts: {
+      push:{ name:'Push', color:'fire', exercises:['bench-flat','ohp-db','db-press-inc','lat-raise','tricep-pushdown','ohp-tricep'],
+        targets:{'bench-flat':{sets:4,val:6},'ohp-db':{sets:3,val:10},'db-press-inc':{sets:3,val:10},'lat-raise':{sets:3,val:15},'tricep-pushdown':{sets:3,val:12},'ohp-tricep':{sets:2,val:12}} },
+      pull:{ name:'Pull', color:'purple', exercises:['pullup','bb-row','lat-pulldown','face-pull','bb-curl','hammer-curl'],
+        targets:{'pullup':{sets:3,val:8},'bb-row':{sets:4,val:8},'lat-pulldown':{sets:3,val:10},'face-pull':{sets:3,val:15},'bb-curl':{sets:3,val:10},'hammer-curl':{sets:2,val:12}} },
+      legs:{ name:'Legs', color:'green', exercises:['bb-squat','rdl','leg-press','leg-curl','seated-calf','hanging-knee'],
+        targets:{'bb-squat':{sets:4,val:6},'rdl':{sets:3,val:8},'leg-press':{sets:3,val:12},'leg-curl':{sets:3,val:12},'seated-calf':{sets:4,val:15},'hanging-knee':{sets:3,val:12}} },
+    },
+    variants: [
+      { key:'6', label:'6 days', days:{1:'push',2:'pull',3:'legs',4:'push',5:'pull',6:'legs',0:'rest'} },
+      { key:'3', label:'3 days', days:{1:'push',2:'rest',3:'pull',4:'rest',5:'legs',6:'rest',0:'rest'} },
+    ],
+  },
+  ul: {
+    name:'Upper / Lower', short:'U/L', level:'Intermediate', color:'blue', glyph:'ul',
+    desc:'Four days a week, alternating upper and lower body. A balanced mix of heavy strength work and higher-rep size work.',
+    workouts: {
+      upperA:{ name:'Upper A', color:'blue', exercises:['bench-flat','bb-row','ohp-db','lat-pulldown','bb-curl','tricep-pushdown'],
+        targets:{'bench-flat':{sets:4,val:6},'bb-row':{sets:4,val:6},'ohp-db':{sets:3,val:10},'lat-pulldown':{sets:3,val:10},'bb-curl':{sets:2,val:12},'tricep-pushdown':{sets:2,val:12}} },
+      lowerA:{ name:'Lower A', color:'green', exercises:['bb-squat','rdl','leg-press','seated-calf','plank'],
+        targets:{'bb-squat':{sets:4,val:6},'rdl':{sets:3,val:8},'leg-press':{sets:3,val:12},'seated-calf':{sets:4,val:12},'plank':{sets:3,val:45}} },
+      upperB:{ name:'Upper B', color:'blue', exercises:['ohp-bb','pullup','db-press-inc','cable-row','lat-raise','hammer-curl'],
+        targets:{'ohp-bb':{sets:4,val:6},'pullup':{sets:4,val:8},'db-press-inc':{sets:3,val:10},'cable-row':{sets:3,val:12},'lat-raise':{sets:3,val:15},'hammer-curl':{sets:2,val:12}} },
+      lowerB:{ name:'Lower B', color:'green', exercises:['deadlift','split-squat','leg-curl','leg-ext','hanging-knee'],
+        targets:{'deadlift':{sets:3,val:5},'split-squat':{sets:3,val:10},'leg-curl':{sets:3,val:12},'leg-ext':{sets:3,val:12},'hanging-knee':{sets:3,val:12}} },
+    },
+    variants: [ { key:'4', label:'4 days', days:{1:'upperA',2:'lowerA',3:'rest',4:'upperB',5:'lowerB',6:'rest',0:'rest'} } ],
+  },
+  sl5: {
+    name:'5×5 Strength', short:'5×5', level:'Beginner–Intermediate', color:'purple', glyph:'five',
+    desc:'Three big barbell lifts, three days a week, five sets of five. Add weight every session you hit all your reps. Workouts A and B alternate, so this turns on Alternating Weeks.',
+    workouts: {
+      a:{ name:'Workout A', color:'purple', exercises:['bb-squat','bench-flat','bb-row'],
+        targets:{'bb-squat':{sets:5,val:5},'bench-flat':{sets:5,val:5},'bb-row':{sets:5,val:5}} },
+      b:{ name:'Workout B', color:'fire', exercises:['bb-squat','ohp-bb','deadlift'],
+        targets:{'bb-squat':{sets:5,val:5},'ohp-bb':{sets:5,val:5},'deadlift':{sets:1,val:5}} },
+    },
+    variants: [ { key:'3', label:'3 days', days:{1:'a',2:'rest',3:'b',4:'rest',5:'a',6:'rest',0:'rest'}, daysB:{1:'b',2:'rest',3:'a',4:'rest',5:'b',6:'rest',0:'rest'} } ],
+  },
+  fb: {
+    name:'Full Body Beginner', short:'Full Body', level:'Beginner', color:'green', glyph:'fb',
+    desc:'Three short full-body sessions a week on machines and dumbbells. Easy to learn, safe to push, and a great foundation.',
+    workouts: {
+      a:{ name:'Full Body A', color:'green', exercises:['leg-press','chest-press-m','lat-pulldown','shoulder-press-m','leg-curl','plank'],
+        targets:{'leg-press':{sets:3,val:10},'chest-press-m':{sets:3,val:10},'lat-pulldown':{sets:3,val:10},'shoulder-press-m':{sets:2,val:10},'leg-curl':{sets:2,val:12},'plank':{sets:2,val:30}} },
+      b:{ name:'Full Body B', color:'blue', exercises:['smith-squat','db-press-flat','seated-row-machine','lat-raise','leg-ext','dead-bug'],
+        targets:{'smith-squat':{sets:3,val:10},'db-press-flat':{sets:3,val:10},'seated-row-machine':{sets:3,val:10},'lat-raise':{sets:2,val:12},'leg-ext':{sets:2,val:12},'dead-bug':{sets:2,val:10}} },
+    },
+    variants: [ { key:'3', label:'3 days', days:{1:'a',2:'rest',3:'b',4:'rest',5:'a',6:'rest',0:'rest'} } ],
+  },
+  bw: {
+    name:'Anywhere — No Equipment', short:'Anywhere', level:'All levels', color:'blue', glyph:'globe',
+    desc:'A complete bodyweight program. Hotel room, backyard, anywhere — no equipment needed.',
+    workouts: {
+      lowerA:{ name:'Lower Body A', color:'green', exercises:['squat','lunge','wall-sit','glute-bridge','calf-raise','single-leg'] },
+      cardio:{ name:'Cardio & Core', color:'blue', exercises:['jump-rope','hiit','russian-twist','plank','dead-bug'] },
+      upperA:{ name:'Upper Body', color:'fire', exercises:['push-up','plank','bird-dog','dead-bug','side-plank'] },
+      lowerB:{ name:'Lower Body B', color:'green', exercises:['walking-lunge','squat','lateral-band','glute-bridge','wall-sit','heel-toe'] },
+      full:{ name:'Full Body', color:'purple', exercises:['squat','push-up','lunge','plank','glute-bridge','dead-bug','calf-raise'] },
+      mobility:{ name:'Mobility', color:'blue', exercises:['cat-cow-ex','hip-circle-ex','foam-roll','yoga-flow','ankle-mob','single-leg'] },
+    },
+    variants: [ { key:'6', label:'6 days', days:{1:'lowerA',2:'cardio',3:'upperA',4:'rest',5:'lowerB',6:'full',0:'mobility'} } ],
+  },
+};

@@ -11,10 +11,20 @@ No build step. Everything is plain HTML, CSS and JavaScript.
 | `index.html` | Screens (Today, History, Plans, Progress), tab bar and every sheet |
 | `css/app.css` | Design tokens (light and dark), type scale, lists, sheets and materials |
 | `js/motion.js` | Spring physics, velocity tracking, momentum projection, rubber-banding, sheets, swipe actions, haptics |
-| `js/data.js` | Exercise and stretch library, built-in plans and programs |
+| `js/data.js` | Exercise and stretch library, muscle map, built-in plans and the program templates |
+| `js/body.js` | Muscles Worked body diagram (sets per muscle over 7 or 30 days) |
 | `js/app.js` | App state, storage and rendering |
+| `sw.js`, `manifest.webmanifest`, `icons/` | Home-screen install and offline support |
 
-When you change a CSS or JS file, bump its `?v=` number in `index.html` so home-screen installs pick up the new file.
+When you change a CSS or JS file, bump its `?v=` number in `index.html` **and** the matching entries plus `CACHE` name in `sw.js`, so home-screen installs pick up the new files.
+
+## Programs
+
+Programs live in `PROGRAMS` in `js/data.js`. Each workout lists its exercises and optional per-exercise `targets` (sets × reps, or seconds for timed exercises). Using a program copies its workouts into your own plans (`prog-<program>-<workout>`), so edits never touch the template.
+
+## Apple Health
+
+Forged can't write to HealthKit directly because it's a web app. Settings → Apple Health explains how to build a one-time Shortcut called **Forged to Health**. Forged opens it with the day's body weight and workout times, and the Shortcut logs them to Health.
 
 ## Design notes
 

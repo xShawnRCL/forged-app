@@ -18,7 +18,10 @@
 (function(){var t;try{t=localStorage.getItem('forged_theme');}catch(e){}
 if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}());
 </script>
-<link rel="stylesheet" href="css/app.css?v=2.0.0">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="css/app.css?v=2.1.0">
 </head>
 <body>
 
@@ -26,11 +29,11 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
 
   <!-- ═══ TODAY ═══ -->
   <main class="screen active" id="screen-today" data-tab="today">
-    <header class="navbar"><div class="navbar-title">Today</div></header>
+    <header class="navbar"><div class="navbar-title" id="today-navtitle">Today</div></header>
     <div class="title-row">
       <div class="title-block">
         <div class="eyebrow" id="today-date"></div>
-        <h1 class="large-title">Today</h1>
+        <h1 class="large-title" id="today-title">Today</h1>
       </div>
       <button class="account-btn" onclick="openSettings()" aria-label="Settings"><span class="account-initial"></span></button>
     </div>
@@ -122,8 +125,15 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
     <div class="tiles" id="standing-stats"></div>
     <div id="monthly-summary-wrap"></div>
 
+    <div class="section-title-row">
+      <h2 class="section-title">Muscles Worked</h2>
+      <div class="segmented small" id="body-seg"></div>
+    </div>
+    <section class="card body-card" id="body-map"></section>
+
     <h2 class="section-title">Personal Records</h2>
     <div class="list" id="pb-showcase"></div>
+    <div id="insights"></div>
 
     <div class="section-title-row">
       <h2 class="section-title">Body Weight</h2>
@@ -389,6 +399,23 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
       <div class="group-header">Appearance</div>
       <div class="list"><div class="row"><div class="segmented full" id="theme-seg"></div></div></div>
 
+      <div class="group-header">Workouts</div>
+      <div class="list">
+        <div class="row"><span class="row-main"><span class="row-title">Keep Screen On</span><span class="row-sub">While a workout is in progress</span></span><button class="switch" role="switch" id="keep-awake-switch" aria-checked="true" aria-label="Keep screen on during workouts"></button></div>
+      </div>
+
+      <div class="group-header">Apple Health</div>
+      <div class="list">
+        <button class="row nav-row" onclick="sendToHealth()">
+          <span class="row-icon" style="--c:#FF2D55"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></span>
+          <span class="row-main"><span class="row-title">Send Today to Health</span><span class="row-sub">Body weight and workout time</span></span>
+        </button>
+        <button class="row nav-row" onclick="showHealthInfo()">
+          <span class="row-main"><span class="row-title">Set Up the Health Shortcut</span></span>
+          <svg class="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+
       <div class="group-header">Backup</div>
       <div class="list">
         <button class="row nav-row" onclick="backupToFile()">
@@ -415,11 +442,6 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
         </button>
         <button class="row nav-row" onclick="openExportModal('bwcsv')">
           <span class="row-main"><span class="row-title">Body Weight as CSV</span><span class="row-sub">Date, weight, unit</span></span>
-          <svg class="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-        </button>
-        <button class="row nav-row" onclick="showHealthInfo()">
-          <span class="row-icon" style="--c:#FF2D55"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.6-7 10-7 10z"/></svg></span>
-          <span class="row-main"><span class="row-title">Apple Health Guide</span></span>
           <svg class="chev" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
         </button>
       </div>
@@ -460,15 +482,24 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
     <div class="sheet-grabber"></div>
     <header class="sheet-nav">
       <span class="nav-spacer"></span>
-      <div class="sheet-heading"><h2 class="sheet-title" id="health-title">Apple Health</h2></div>
+      <div class="sheet-heading"><h2 class="sheet-title" id="health-title">Apple Health Shortcut</h2></div>
       <button class="nav-btn strong" data-close>Done</button>
     </header>
     <div class="sheet-body">
-      <p class="lede">Forged is a web app, and only native iOS apps can write to HealthKit. A free bridge app handles the last step.</p>
-      <div class="field-label">Strong — easiest</div>
-      <ol class="steps"><li>Export workouts as CSV in Settings.</li><li>Install <strong>Strong</strong> from the App Store.</li><li>In Strong, go to Profile → Import Workouts and choose the CSV.</li><li>Strong syncs to Apple Health automatically.</li></ol>
-      <div class="field-label">Hevy</div>
-      <ol class="steps"><li>Export workouts as CSV in Settings.</li><li>Install <strong>Hevy</strong> from the App Store.</li><li>In Hevy, go to Profile → Import and choose the CSV.</li><li>Turn on Apple Health in Hevy's settings.</li></ol>
+      <p class="lede">Forged is a web app, and only native apps can write to Apple Health directly. A Shortcut you build once bridges the gap: Forged hands it your data and the Shortcut logs it.</p>
+      <div class="field-label">Build the Shortcut (once)</div>
+      <ol class="steps">
+        <li>Open the <strong>Shortcuts</strong> app, tap <strong>+</strong>, and name it exactly <strong>Forged to Health</strong>.</li>
+        <li>Add <strong>Get Dictionary from Input</strong>. This reads what Forged sends.</li>
+        <li>Add <strong>Get Dictionary Value</strong> and set the key to <strong>weight</strong>.</li>
+        <li>Add <strong>If</strong> → <em>Dictionary Value</em> <strong>has any value</strong>.</li>
+        <li>Inside the If, add <strong>Log Health Sample</strong>: Type <strong>Weight</strong>, Value <em>Dictionary Value</em>, and the unit you use (lb or kg).</li>
+        <li>Optional: if your Shortcuts app has <strong>Log Workout</strong>, add it after the If and use the <strong>workoutStart</strong> and <strong>workoutEnd</strong> values (type: Traditional Strength Training).</li>
+      </ol>
+      <p class="footnote">The first time it runs, iOS asks to allow Shortcuts to write to Health. After that, use <strong>Send to Apple Health</strong> after a workout or a weigh-in.</p>
+      <button class="btn tint" style="margin-top:16px" onclick="sendToHealth()">Test It With Today’s Data</button>
+      <div class="field-label">Full workout history</div>
+      <ol class="steps"><li>Export workouts as CSV in Settings.</li><li>Import the CSV into <strong>Strong</strong> or <strong>Hevy</strong> (both free).</li><li>Turn on Apple Health in that app — it syncs your sets and workouts.</li></ol>
     </div>
   </section>
 </div>
@@ -527,8 +558,37 @@ if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t)
   </section>
 </div>
 
-<script src="js/motion.js?v=2.0.0"></script>
-<script src="js/data.js?v=2.0.0"></script>
-<script src="js/app.js?v=2.0.0"></script>
+<!-- Workout summary -->
+<div class="sheet-layer" id="summary-modal" aria-hidden="true">
+  <div class="scrim"></div>
+  <section class="sheet" role="dialog" aria-modal="true" aria-labelledby="summary-title">
+    <div class="sheet-grabber"></div>
+    <header class="sheet-nav">
+      <span class="nav-spacer"></span>
+      <div class="sheet-heading"><h2 class="sheet-title" id="summary-title">Summary</h2></div>
+      <button class="nav-btn strong" data-close>Done</button>
+    </header>
+    <div class="sheet-body" id="summary-body"></div>
+  </section>
+</div>
+
+<!-- Program detail -->
+<div class="sheet-layer" id="program-modal" aria-hidden="true">
+  <div class="scrim"></div>
+  <section class="sheet tall" role="dialog" aria-modal="true" aria-labelledby="program-title">
+    <div class="sheet-grabber"></div>
+    <header class="sheet-nav">
+      <button class="nav-btn" data-close>Close</button>
+      <div class="sheet-heading"><h2 class="sheet-title" id="program-title">Program</h2></div>
+      <span class="nav-spacer"></span>
+    </header>
+    <div class="sheet-body" id="program-body"></div>
+  </section>
+</div>
+
+<script src="js/motion.js?v=2.1.0"></script>
+<script src="js/data.js?v=2.1.0"></script>
+<script src="js/body.js?v=2.1.0"></script>
+<script src="js/app.js?v=2.1.0"></script>
 </body>
 </html>

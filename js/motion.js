@@ -133,6 +133,7 @@ const _hapticLabel = (() => {
   return label;
 })();
 function haptic(pattern = 10) {
+  if (navigator.userActivation && !navigator.userActivation.hasBeenActive) return; // browsers ignore it before the first tap
   if (navigator.vibrate) { try { navigator.vibrate(pattern); } catch (e) {} return; }
   try { _hapticLabel.click(); } catch (e) {}
 }
@@ -337,10 +338,11 @@ document.addEventListener('touchstart', e => {
   if (_openSwipe && !_openSwipe.el.contains(e.target)) _openSwipe.close();
 }, { passive: true, capture: true });
 
-function swipeRow(el, onCommit) {
+function swipeRow(el, onCommit, opts = {}) {
   const content = el.querySelector('.swipe-content');
-  const action = el.querySelector('.swipe-action');
-  const ACTION_W = 88;
+  const action = el.querySelector('.swipe-action:not(.alt)');
+  const alt = el.querySelector('.swipe-action.alt');   // optional second, non-destructive action
+  const ACTION_W = alt ? 160 : 88;
   const tracker = new VelocityTracker();
   let width = 0, startX = 0, startY = 0, base = 0;
   let decided = false, horizontal = false, armed = false, committed = false;
@@ -349,7 +351,15 @@ function swipeRow(el, onCommit) {
     onUpdate: x => {
       content.style.transform = `translate3d(${x}px,0,0)`;
       const reveal = Math.max(0, -x);
-      action.style.width = reveal + 'px';
+      if (alt && !armed) {
+        // Both actions share the revealed space; a full swipe hands it all to the destructive one.
+        action.style.width = reveal / 2 + 'px';
+        alt.style.width = reveal / 2 + 'px';
+        alt.style.right = reveal / 2 + 'px';
+      } else {
+        action.style.width = reveal + 'px';
+        if (alt) alt.style.width = '0px';
+      }
       action.classList.toggle('visible', reveal > 0.5);
     },
   });
@@ -370,6 +380,7 @@ function swipeRow(el, onCommit) {
   };
 
   action.addEventListener('click', e => { e.stopPropagation(); width = el.offsetWidth; api.commit(); });
+  if (alt) alt.addEventListener('click', e => { e.stopPropagation(); api.close(); if (opts.onAlt) opts.onAlt(); });
 
   // A tap on an open row closes it instead of activating the row.
   content.addEventListener('click', e => {
