@@ -31,7 +31,7 @@
   --safe-top: env(safe-area-inset-top, 0px);
   /* Real screen height. iOS home-screen apps can under-report it (see app.js). */
   --app-h: 100dvh;
-  --tab-bottom: max(10px, calc(env(safe-area-inset-bottom, 0px) - 4px));
+  --tab-bottom: max(8px, calc(env(safe-area-inset-bottom, 0px) - 16px));
   /* Tab bar geometry, shared with the rest-timer pill. --tbm: 0 full → 1 minimized. */
   --tbm: 0;
   --bar-w: min(calc(100% - 24px), 440px);

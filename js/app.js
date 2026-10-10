@@ -360,7 +360,7 @@ function fitAppHeight() {
   const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   const portrait = window.innerHeight >= window.innerWidth;
   const gap = standalone && portrait ? screen.height - window.innerHeight : 0;
-  if (gap > 20) root.setProperty('--tab-bottom', '10px');
+  if (gap > 20) root.setProperty('--tab-bottom', '4px');
   else root.removeProperty('--tab-bottom');
 }
 
