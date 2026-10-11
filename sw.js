@@ -1,10 +1,10 @@
 // FORGED — offline support.
 // Network first, so updates show up as soon as you're online; the cached copy
 // is the fallback when you're not (e.g. a gym basement with no signal).
-const CACHE = 'forged-v2.2.2';
+const CACHE = 'forged-v2.2.3';
 const ASSETS = [
   './', 'index.html', 'manifest.webmanifest',
-  'css/app.css?v=2.2.2', 'js/motion.js?v=2.2.2', 'js/data.js?v=2.2.2', 'js/body.js?v=2.2.2', 'js/app.js?v=2.2.2',
+  'css/app.css?v=2.2.3', 'js/motion.js?v=2.2.3', 'js/data.js?v=2.2.3', 'js/body.js?v=2.2.3', 'js/app.js?v=2.2.3',
   'icons/apple-touch-icon.png', 'icons/icon-192.png', 'icons/icon-512.png',
 ];
 
