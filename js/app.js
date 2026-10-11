@@ -350,18 +350,21 @@ function bindScrollEffects() {
   }, true);
 }
 
-// Some iOS versions stop drawing a home-screen web app short of the screen
-// bottom, leaving a black strip below it. The app can't paint there, so keep
-// it inside the drawn area and, when the strip exists, drop the home-indicator
-// spacing so the tab bar sits just above it rather than floating high.
+// iOS 26 home-screen apps with a translucent status bar report a viewport
+// that's short by the status-bar height, leaving a black band at the bottom.
+// Measure the shortfall and stretch the page to the real screen (see the
+// .ios-shim rules in app.css). Only plausible gaps are corrected.
 function fitAppHeight() {
-  const root = document.documentElement.style;
-  root.removeProperty('--app-h');
+  const html = document.documentElement;
   const standalone = navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
   const portrait = window.innerHeight >= window.innerWidth;
   const gap = standalone && portrait ? screen.height - window.innerHeight : 0;
-  if (gap > 20) root.setProperty('--tab-bottom', '4px');
-  else root.removeProperty('--tab-bottom');
+  const on = gap > 0 && gap <= 120;
+  html.classList.toggle('ios-shim', on);
+  if (on) html.style.setProperty('--app-h', screen.height + 'px');
+  else html.style.removeProperty('--app-h');
+  html.style.removeProperty('--tab-bottom');
+  if (on && (window.scrollX || window.scrollY)) window.scrollTo(0, 0);
 }
 
 function updateInitials() {
@@ -2852,6 +2855,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('touchstart', () => {}, { passive: true }); // enables :active on iOS
   fitAppHeight();
   window.addEventListener('resize', fitAppHeight);
+  window.addEventListener('orientationchange', () => setTimeout(fitAppHeight, 300));
+  // The stretched page must never scroll — the screens inside it do.
+  window.addEventListener('scroll', () => {
+    if (document.documentElement.classList.contains('ios-shim') && (window.scrollX || window.scrollY)) window.scrollTo(0, 0);
+  }, { passive: true });
   load();
   applyTheme(currentThemePref());
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', syncThemeColor);
@@ -2914,6 +2922,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Day rollover while the app sits in the background.
   document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') fitAppHeight();
     if (document.visibilityState === 'visible' && !viewDK && dk(new Date()) !== curDK) { updateStreak(); renderAll(); }
     updateWakeLock();
     if (document.visibilityState === 'visible' && rest.endAt && $('rest-timer-bar').classList.contains('show')) tickRest();

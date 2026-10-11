@@ -196,7 +196,7 @@ svg { display: block; }
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  padding: calc(var(--safe-top) + 52px) var(--gutter) 0;
+  padding: calc(var(--safe-top) + 14px) var(--gutter) 0;
 }
 .title-block { flex: 1; min-width: 0; transform-origin: 0 100%; }
 .eyebrow {
@@ -1487,3 +1487,12 @@ svg { display: block; }
 .wk-idle { display: flex; align-items: center; gap: 10px; }
 .wk-idle .pill svg { width: 12px; height: 12px; }
 .wk-idle span { font-size: 0.824rem; color: var(--label2); }
+
+/* iOS 26 home-screen bug: the reported viewport is short by the status-bar
+   height, leaving a black band at the bottom. app.js measures the shortfall
+   and adds .ios-shim; the page is stretched to the real screen height and
+   the app is positioned against the page (fixed elements stay tied to the
+   short viewport and get cut off). Page scrolling is pinned in app.js. */
+html.ios-shim, html.ios-shim body { height: var(--app-h); min-height: var(--app-h); }
+html.ios-shim { overflow: visible; }
+html.ios-shim #app, html.ios-shim .sheet-layer { position: absolute; }
